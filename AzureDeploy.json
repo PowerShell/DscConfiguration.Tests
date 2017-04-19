@@ -1,0 +1,339 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+        "type": "string",
+        "metadata": {
+          "description": "Name for the Virtual Machine."
+        }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Username for the Virtual Machine."
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for the Virtual Machine."
+      }
+    },
+    "dnsLabelPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+      }
+    },
+    "WindowsOSVersion": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter",
+      "allowedValues": [
+        "2008-R2-SP1",
+        "2012-Datacenter",
+        "2012-R2-Datacenter",
+        "2016-Nano-Server",
+        "2016-Datacenter-with-Containers",
+        "2016-Datacenter"
+      ],
+      "metadata": {
+        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+        "metadata": {
+            "description": "Name for the storage account."
+        }
+    },
+    "nicName": {
+      "type": "string",
+        "metadata": {
+            "description": "Name for the storage account."
+        }
+    },
+    "publicIPAddressName": {
+      "type": "string",
+        "metadata": {
+            "description": "Name for the public ip address."
+        }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+        "metadata": {
+            "description": "Name for the virtual network."
+        }
+    },
+    "nsgName": {
+      "type": "string",
+        "metadata": {
+            "description": "Name for the network security group."
+        }
+    },
+    "registrationKey": {
+        "type": "securestring",
+        "metadata": {
+            "description": "Registration key to use to onboard to the Azure Automation DSC pull/reporting server"
+        }
+    },
+    "registrationUrl": {
+        "type": "string",
+        "metadata": {
+            "description": "Registration url of the Azure Automation DSC pull/reporting server"
+        }
+    },
+    "nodeConfigurationName": {
+        "type": "string",
+        "metadata": {
+            "description": "The name of the node configuration, on the Azure Automation DSC pull server, that this node will be configured as"
+        }
+    }
+  },
+  "variables": {
+    "addressPrefix": "10.0.0.0/16",
+    "subnetName": "subnet",
+    "subnetPrefix": "10.0.0.0/24",
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('subnetName'))]",
+    "modulesUrl": "https://github.com/Microsoft/DSCConfiguration.Tests/raw/master/RegistrationMetaConfigV2.zip",
+    "configurationFunction": "RegistrationMetaConfigV2.ps1\\RegistrationMetaConfigV2"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('storageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Premium_LRS"
+      },
+      "kind": "Storage",
+      "properties": {}
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[parameters('publicIPAddressName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[parameters('nsgName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+        {
+          "name": "WinRM",
+          "properties": {
+            "description": "Allow WinRM ANY",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "5986",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 100,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "RDP",
+          "properties": {
+            "description": "Allow RDP ANY",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "3389",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 101,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "HTTP",
+          "properties": {
+            "description": "Allow HTTP ANY",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "80",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 102,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "HTTPS",
+          "properties": {
+            "description": "Allow HTTPS ANY",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "443",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 103,
+            "direction": "Inbound"
+          }
+        }
+      ]
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[resourceGroup().location]",
+           "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', parameters('nsgName'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[parameters('nicName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', parameters('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',parameters('publicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-06-15",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', parameters('nicName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS2_v2"
+        },
+        "osProfile": {
+          "computerName": "[substring(parameters('WindowsOSVersion'),0,7)]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "[parameters('WindowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))).primaryEndpoints.blob, 'vhds/', parameters('dnsLabelPrefix'), 'osdisk.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('nicName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "name": "[concat(parameters('vmName'),'/Microsoft.Powershell.DSC')]",
+        "apiVersion": "2015-06-15",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+        ],
+        "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "2.19",
+            "autoUpgradeMinorVersion": true,
+            "protectedSettings": {
+                "Items": {
+                    "registrationKeyPrivate": "[parameters('registrationKey')]"
+                }
+            },
+            "settings": {
+                "ModulesUrl": "[variables('modulesUrl')]",
+                "SasToken": "",
+                "ConfigurationFunction": "[variables('configurationFunction')]",
+                "Properties": [
+                    {
+                        "Name": "RegistrationKey",
+                        "Value": {
+                            "UserName": "PLACEHOLDER_DONOTUSE",
+                            "Password": "PrivateSettingsRef:registrationKeyPrivate"
+                        },
+                        "TypeName": "System.Management.Automation.PSCredential"
+                    },
+                    {
+                        "Name": "RegistrationUrl",
+                        "Value": "[parameters('registrationUrl')]",
+                        "TypeName": "System.String"
+                    },
+                    {
+                        "Name": "NodeConfigurationName",
+                        "Value": "[parameters('nodeConfigurationName')]",
+                        "TypeName": "System.String"
+                    }
+                ]
+            }
+        }
+    }
+  ],
+  "outputs": {
+    "hostname": {
+      "type": "string",
+      "value": "[reference(parameters('publicIPAddressName')).dnsSettings.fqdn]"
+    }
+  }
+}
