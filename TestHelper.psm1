@@ -1,4 +1,6 @@
 <#
+    .SYNOPSIS
+
 #>
 function Invoke-UniquePSModulePath 
 {
@@ -26,6 +28,8 @@ function Invoke-UniquePSModulePath
 }
 
 <#
+    .SYNOPSIS
+
 #>
 function Get-RequiredGalleryModules
 {
@@ -105,6 +109,8 @@ function Get-RequiredGalleryModules
 }
 
 <#
+    .SYNOPSIS
+
 #>
 function Invoke-ConfigurationPrep
 {
@@ -152,6 +158,8 @@ function Invoke-ConfigurationPrep
 }
 
 <#
+    .SYNOPSIS
+
 #>
 function Import-ModuleFromSource
 {
@@ -180,136 +188,17 @@ function Import-ModuleFromSource
 
 <#
     .SYNOPSIS
-        Retrieves the parse errors for the given file.
 
-    .PARAMETER FilePath
-        The path to the file to get parse errors for.
-#>
-function Get-FileParseErrors
-{
-    [OutputType([System.Management.Automation.Language.ParseError[]])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-        [String]
-        $FilePath
-    )
-
-    $parseErrors = $null
-    $null = [System.Management.Automation.Language.Parser]::ParseFile($FilePath, [ref] $null, `
-    [ref] $parseErrors)
-
-    return $parseErrors
-}
-
-<#
-    .SYNOPSIS
-        Retrieves all text files under the given root file path.
-
-    .PARAMETER Root
-        The root file path under which to retrieve all text files.
-
-    .NOTES
-        Retrieves all files with the '.gitignore', '.gitattributes', '.ps1', '.psm1', '.psd1',
-        '.json', '.xml', '.cmd', or '.mof' file extensions.
-#>
-function Get-TextFilesList
-{
-    [OutputType([System.IO.FileInfo[]])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $FilePath
-    )
-
-    $textFileExtensions = @('.gitignore', '.gitattributes', '.ps1', '.psm1', '.psd1', '.json', `
-    '.xml', '.cmd', '.mof')
-
-    return Get-ChildItem -Path $FilePath -File -Recurse | Where-Object { $textFileExtensions `
-    -contains $_.Extension }
-}
-
-<#
-    .SYNOPSIS
-        Retrieves the list of suppressed PSSA rules in the file at the given path.
-
-    .PARAMETER FilePath
-        The path to the file to retrieve the suppressed rules of.
-#>
-function Get-SuppressedPSSARuleNameList
-{
-    [OutputType([String[]])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [String]
-        $FilePath
-    )
-
-    $suppressedPSSARuleNames = [String[]]@()
-
-    $fileAst = [System.Management.Automation.Language.Parser]::ParseFile($FilePath, [ref]$null, `
-    [ref]$null)
-
-    # Overall file attrbutes
-    $attributeAsts = $fileAst.FindAll({$args[0] `
-    -is [System.Management.Automation.Language.AttributeAst]}, $true)
-
-    foreach ($attributeAst in $attributeAsts)
-    {
-        if ([System.Diagnostics.CodeAnalysis.SuppressMessageAttribute].FullName.ToLower().Contains($attributeAst.TypeName.FullName.ToLower()))
-        {
-            $suppressedPSSARuleNames += $attributeAst.PositionalArguments.Extent.Text
-        }
-    }
-
-    return $suppressedPSSARuleNames
-}
-
-<#
-    .SYNOPSIS
-        Tests if a file is encoded in Unicode.
-
-    .PARAMETER FileInfo
-        The file to test.
-#>
-function Test-FileInUnicode
-{
-    [OutputType([Boolean])]
-    [CmdletBinding()]
-    param
-    (
-        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
-        [System.IO.FileInfo]
-        $FileInfo
-    )
-
-    $filePath = $FileInfo.FullName
-    $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
-    $zeroBytes = @( $fileBytes -eq 0 )
-
-    return ($zeroBytes.Length -ne 0)
-}
-
-<#
 #>
 function Invoke-AzureSPNLogin
 {
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory=$true)]
-        [string]$SubscriptionID,
-        [Parameter(Mandatory=$true)]
-        [string]$ApplicationID,
-        [Parameter(Mandatory=$true)]
-        [string]$ApplicationPassword,
-        [Parameter(Mandatory=$true)]
-        [string]$TenantID
+        [string]$SubscriptionID = $env:SubscriptionID,
+        [string]$ApplicationID = $env:ApplicationID,
+        [string]$ApplicationPassword = $env:ApplicationPassword,
+        [string]$TenantID = $env:TenantID
     )
     try 
     {
@@ -340,6 +229,8 @@ function Invoke-AzureSPNLogin
 }
 
 <#
+    .SYNOPSIS
+
 #>
 function New-ResourceGroupandAutomationAccount
 {
@@ -385,23 +276,8 @@ function New-ResourceGroupandAutomationAccount
 }
 
 <#
-#>
-function Remove-AzureTestResources
-{
-    [CmdletBinding()]
-    param
-    (
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID
-    )
-    try {
-        $Remove = Remove-AzureRmResourceGroup -Name $ResourceGroupName -Force
-    }
-    catch [System.Exception] {
-        throw "An error occured while removing the Resource Group $ResourceGroupName`n$($_.exception.message)"
-    }
-}
+    .SYNOPSIS
 
-<#
 #>
 function Import-ModuleToAzureAutomation
 {
@@ -433,6 +309,8 @@ function Import-ModuleToAzureAutomation
 }
 
 <#
+    .SYNOPSIS
+
 #>
 function Wait-ModuleExtraction
 {
@@ -460,6 +338,8 @@ function Wait-ModuleExtraction
 }    
 
 <#
+    .SYNOPSIS
+
 #>
 function Import-ConfigurationToAzureAutomation
 {
@@ -509,6 +389,8 @@ function Import-ConfigurationToAzureAutomation
 }
 
 <#
+    .SYNOPSIS
+
 #>
 function Wait-ConfigurationCompilation
 {
@@ -530,116 +412,6 @@ function Wait-ConfigurationCompilation
     catch [System.Exception] 
     {
         throw "An error occured while waiting for configuration $($Configuration.Name) to compile in Azure Automation`n$($_.exception.message)"        
-    }
-}
-
-
-<#
-#>
-function Wait-NodeCompliance
-{
-    [CmdletBinding()]     
-    param
-    (
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
-        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
-    )
-    try 
-    {
-        $Nodes = Get-AzureRMAutomationDSCNode -ResourceGroupName $ResourceGroupName `
-        -AutomationAccountName $AutomationAccountName
-
-        foreach ($Node in $Nodes) {
-            while (@($null, 'InProgress', 'Pending') -contains (Get-AzureRMAutomationDSCNodeReport -ResourceGroupName $ResourceGroupName `
-            -AutomationAccountName $AutomationAccountName -NodeID $Node.ID).Status) {
-                Start-Sleep -Seconds 15
-            }
-        }
-    }
-    catch [System.Exception] 
-    {
-        throw "An error occured while waiting nodes to report compliance status in Azure Automation`n$($_.exception.message)"        
-    }
-}
-
-<#
-#>
-function New-AzureTestVM
-{
-    [CmdletBinding()]     
-    param
-    (
-        [Parameter(Mandatory=$true)]
-        [string]$BuildID,
-        [Parameter(Mandatory=$true)]
-        [string]$Configuration,
-        [Parameter(Mandatory=$true)]        
-        [string]$WindowsOSVersion
-    )
-    try 
-    {
-        # Retrieve Azure Automation DSC registration information
-        $Account = Get-AzureRMAutomationAccount -ResourceGroupName "TestAutomation$BuildID" `
-        -Name "AADSC$BuildID"
-        $RegistrationInfo = $Account | Get-AzureRmAutomationRegistrationInfo
-        $registrationUrl = $RegistrationInfo.Endpoint
-        $registrationKey = $RegistrationInfo.PrimaryKey | ConvertTo-SecureString -AsPlainText `
-        -Force
-
-        # Random password for local administrative account
-        $adminPassword = new-randompassword -length 24 -UseSpecialCharacters | `
-        ConvertTo-SecureString -AsPlainText -Force
-
-        # DNS name based on random chars followed by first 10 of configuration name
-        $dnsLabelPrefix = "test$(Get-Random -Minimum 1000 -Maximum 9999)"
-
-        # VM Name based on configuration name and OS name
-        $vmName = "$Configuration.$($WindowsOSVersion.replace('-',''))"
-
-        # Build hashtable of deployment parameters
-        $DeploymentParameters = @{
-            Name = $vmName
-            ResourceGroupName = "TestAutomation$BuildID"
-            TemplateFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.json"
-            TemplateParameterFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.parameters.json"
-            dnsLabelPrefix = $dnsLabelPrefix
-            vmName = $vmName
-            storageAccountName = "sa$($WindowsOSVersion.replace('-','').ToLower())"
-            nicName = "nic$Configuration$BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            publicIPAddressName = "pip$Configuration$BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            virtualNetworkName = "net$Configuration$BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            nsgName = "nsg$Configuration$BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            WindowsOSVersion = $WindowsOSVersion
-            adminPassword = $adminPassword
-            registrationUrl = $registrationUrl
-            registrationKey = $registrationKey
-            nodeConfigurationName = "$Configuration.localhost"
-        }
-
-        # Deploy ARM template
-        $AzureVm = New-AzureRMResourceGroupDeployment @DeploymentParameters
-
-        # Get deployment details
-        $Status = Get-AzureRMResourceGroupDeployment -ResourceGroupName "TestAutomation$BuildID" `
-        -Name $vmName
-
-        # Write output to build log
-        if ($Status.ProvisioningState -eq 'Succeeded') {
-            Write-Output "Virtual machine DNS address: $($Status.Outputs.Values.Value)"
-        }
-        else {
-            Write-Output $AzureVm
-            $Error = Get-AzureRMResourceGroupDeploymentOperation -ResourceGroupName "TestAutomation$BuildID" `
-            -Name $vmName
-            $Message = $Error.Properties | Where-Object {$_.ProvisioningState -eq 'Failed'} | `
-            ForEach-Object {$_.StatusMessage} | ForEach-Object {$_.Error} | `
-            ForEach-Object {$_.Details} | ForEach-Object {$_.Message}
-            Write-Error $Message
-        }
-    }
-        catch [System.Exception] 
-        {
-        throw "An error occured during the Azure deployment.`n$($_.exception.message)"        
     }
 }
 
@@ -691,4 +463,251 @@ function New-RandomPassword
     }
 
     return (-join $characters)
+}
+
+<#
+    .SYNOPSIS
+
+#>
+function New-AzureTestVM
+{
+    [CmdletBinding()]     
+    param
+    (
+        [Parameter(Mandatory=$true)]
+        [string]$Configuration,
+        [Parameter(Mandatory=$true)]        
+        [string]$WindowsOSVersion
+    )
+    try 
+    {
+        # Retrieve Azure Automation DSC registration information
+        $Account = Get-AzureRMAutomationAccount -ResourceGroupName "TestAutomation$env:BuildID" `
+        -Name "AADSC$env:BuildID"
+        $RegistrationInfo = $Account | Get-AzureRmAutomationRegistrationInfo
+        $registrationUrl = $RegistrationInfo.Endpoint
+        $registrationKey = $RegistrationInfo.PrimaryKey | ConvertTo-SecureString -AsPlainText `
+        -Force
+
+        # Random password for local administrative account
+        $adminPassword = new-randompassword -length 24 -UseSpecialCharacters | `
+        ConvertTo-SecureString -AsPlainText -Force
+
+        # DNS name based on random chars followed by first 10 of configuration name
+        $dnsLabelPrefix = "test$(Get-Random -Minimum 1000 -Maximum 9999)"
+
+        # VM Name based on configuration name and OS name
+        $vmName = "$Configuration.$($WindowsOSVersion.replace('-',''))"
+
+        # Build hashtable of deployment parameters
+        $DeploymentParameters = @{
+            Name = $vmName
+            ResourceGroupName = "TestAutomation$env:BuildID"
+            TemplateFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.json"
+            TemplateParameterFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.parameters.json"
+            dnsLabelPrefix = $dnsLabelPrefix
+            vmName = $vmName
+            storageAccountName = "sa$($WindowsOSVersion.replace('-','').ToLower())"
+            nicName = "nic$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
+            publicIPAddressName = "pip$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
+            virtualNetworkName = "net$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
+            nsgName = "nsg$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
+            WindowsOSVersion = $WindowsOSVersion
+            adminPassword = $adminPassword
+            registrationUrl = $registrationUrl
+            registrationKey = $registrationKey
+            nodeConfigurationName = "$Configuration.localhost"
+        }
+
+        # Deploy ARM template
+        $AzureVm = New-AzureRMResourceGroupDeployment @DeploymentParameters
+
+        # Get deployment details
+        $Status = Get-AzureRMResourceGroupDeployment -ResourceGroupName "TestAutomation$env:BuildID" `
+        -Name $vmName
+
+        # Write output to build log
+        if ($Status.ProvisioningState -eq 'Succeeded') {
+            Write-Output "Virtual machine DNS address: $($Status.Outputs.Values.Value)"
+        }
+        else {
+            Write-Output $AzureVm
+            $Error = Get-AzureRMResourceGroupDeploymentOperation -ResourceGroupName "TestAutomation$env:BuildID" `
+            -Name $vmName
+            $Message = $Error.Properties | Where-Object {$_.ProvisioningState -eq 'Failed'} | `
+            ForEach-Object {$_.StatusMessage} | ForEach-Object {$_.Error} | `
+            ForEach-Object {$_.Details} | ForEach-Object {$_.Message}
+            Write-Error $Message
+        }
+    }
+        catch [System.Exception] 
+        {
+        throw "An error occured during the Azure deployment.`n$($_.exception.message)"        
+    }
+}
+
+<#
+    .SYNOPSIS
+
+#>
+function Wait-NodeCompliance
+{
+    [CmdletBinding()]     
+    param
+    (
+        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
+        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
+    )
+    try 
+    {
+        $Nodes = Get-AzureRMAutomationDSCNode -ResourceGroupName $ResourceGroupName `
+        -AutomationAccountName $AutomationAccountName
+
+        foreach ($Node in $Nodes) {
+            while (@($null, 'InProgress', 'Pending') -contains (Get-AzureRMAutomationDSCNodeReport -ResourceGroupName $ResourceGroupName `
+            -AutomationAccountName $AutomationAccountName -NodeID $Node.ID).Status) {
+                Start-Sleep -Seconds 15
+            }
+        }
+    }
+    catch [System.Exception] 
+    {
+        throw "An error occured while waiting nodes to report compliance status in Azure Automation`n$($_.exception.message)"        
+    }
+}
+
+<#
+    .SYNOPSIS
+
+#>
+function Remove-AzureTestResources
+{
+    [CmdletBinding()]
+    param
+    (
+        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID
+    )
+    try {
+        $Remove = Remove-AzureRmResourceGroup -Name $ResourceGroupName -Force
+    }
+    catch [System.Exception] {
+        throw "An error occured while removing the Resource Group $ResourceGroupName`n$($_.exception.message)"
+    }
+}
+
+<#
+    .SYNOPSIS
+        Tests if a file is encoded in Unicode.
+
+    .PARAMETER FileInfo
+    The file to test.
+#>
+function Test-FileInUnicode
+{
+    [OutputType([Boolean])]
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+        [System.IO.FileInfo]
+        $FileInfo
+    )
+
+    $filePath = $FileInfo.FullName
+    $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
+    $zeroBytes = @( $fileBytes -eq 0 )
+
+    return ($zeroBytes.Length -ne 0)
+}
+
+<#
+    .SYNOPSIS
+        Retrieves the parse errors for the given file.
+
+    .PARAMETER FilePath
+    The path to the file to get parse errors for.
+#>
+function Get-FileParseErrors
+{
+    [OutputType([System.Management.Automation.Language.ParseError[]])]
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(ValueFromPipeline = $true, Mandatory = $true)]
+        [String]
+        $FilePath
+    )
+
+    $parseErrors = $null
+    $null = [System.Management.Automation.Language.Parser]::ParseFile($FilePath, [ref] $null, `
+    [ref] $parseErrors)
+
+    return $parseErrors
+}
+
+<#
+    .SYNOPSIS
+        Retrieves all text files under the given root file path.
+
+    .PARAMETER Root
+        The root file path under which to retrieve all text files.
+
+    .NOTES
+    Retrieves all files with the '.gitignore', '.gitattributes', '.ps1', '.psm1', '.psd1',
+    '.json', '.xml', '.cmd', or '.mof' file extensions.
+#>
+function Get-TextFilesList
+{
+    [OutputType([System.IO.FileInfo[]])]
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $FilePath
+    )
+
+    $textFileExtensions = @('.gitignore', '.gitattributes', '.ps1', '.psm1', '.psd1', '.json', `
+    '.xml', '.cmd', '.mof')
+
+    return Get-ChildItem -Path $FilePath -File -Recurse | Where-Object { $textFileExtensions `
+    -contains $_.Extension }
+}
+
+<#
+    .SYNOPSIS
+        Retrieves the list of suppressed PSSA rules in the file at the given path.
+
+    .PARAMETER FilePath
+    The path to the file to retrieve the suppressed rules of.
+#>
+function Get-SuppressedPSSARuleNameList
+{
+    [OutputType([String[]])]
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [String]
+        $FilePath
+    )
+
+    $suppressedPSSARuleNames = [String[]]@()
+
+    $fileAst = [System.Management.Automation.Language.Parser]::ParseFile($FilePath, [ref]$null, `
+    [ref]$null)
+
+    # Overall file attrbutes
+    $attributeAsts = $fileAst.FindAll({$args[0] `
+    -is [System.Management.Automation.Language.AttributeAst]}, $true)
+
+    foreach ($attributeAst in $attributeAsts)
+    {
+        if ([System.Diagnostics.CodeAnalysis.SuppressMessageAttribute].FullName.ToLower().Contains($attributeAst.TypeName.FullName.ToLower()))
+        {
+            $suppressedPSSARuleNames += $attributeAst.PositionalArguments.Extent.Text
+        }
+    }
+
+    return $suppressedPSSARuleNames
 }
