@@ -112,6 +112,35 @@ function Get-RequiredGalleryModules
     .SYNOPSIS
 
 #>
+function Import-ModuleFromSource
+{
+    [CmdletBinding()]     
+    param
+    (
+        [Parameter(Mandatory=$true)]
+        [string]$Name
+    )
+    try 
+    {
+        if ($ModuleDir = New-Item -Type Directory `
+        -Path $env:ProgramFiles\WindowsPowerShell\Modules\$Name -force) {
+            Copy-Item -Path .\$Name.psd1 -Destination $ModuleDir -force
+            if (Test-Path .\$Name.psm1) {
+                Copy-Item -Path .\$Name.psm1 -Destination $ModuleDir -force
+            }
+            Import-Module -Name $Name
+        }
+    }
+    catch [System.Exception] 
+    {
+        throw "An error occured while importing module $Name`n$($_.exception.message)"
+    }
+}
+
+<#
+    .SYNOPSIS
+
+#>
 function Invoke-ConfigurationPrep
 {
     [CmdletBinding()]     
@@ -125,7 +154,7 @@ function Invoke-ConfigurationPrep
     {
         # Discover OS versions, or default to Server 2016 Datacenter Edition
         $WindowsOSVersion = if ($ModuleData = `
-        (Get-Module -Name $Module).PrivateData.PSData.WindowsOSVersion) {$ModuleData}
+        (Get-Module -Name $Module).PrivateData.WindowsOSVersion) {$ModuleData}
         else {'2016-Datacenter'}
 
         # Get list of configurations loaded from module
@@ -157,35 +186,6 @@ function Invoke-ConfigurationPrep
     catch [System.Exception] 
     {
         throw "An error occured while preparing configurations for import`n$($_.exception.message)"
-    }
-}
-
-<#
-    .SYNOPSIS
-
-#>
-function Import-ModuleFromSource
-{
-    [CmdletBinding()]     
-    param
-    (
-        [Parameter(Mandatory=$true)]
-        [string]$Name
-    )
-    try 
-    {
-        if ($ModuleDir = New-Item -Type Directory `
-        -Path $env:ProgramFiles\WindowsPowerShell\Modules\$Name -force) {
-            Copy-Item -Path .\$Name.psd1 -Destination $ModuleDir -force
-            if (Test-Path .\$Name.psm1) {
-                Copy-Item -Path .\$Name.psm1 -Destination $ModuleDir -force
-            }
-            Import-Module -Name $Name
-        }
-    }
-    catch [System.Exception] 
-    {
-        throw "An error occured while importing module $Name`n$($_.exception.message)"
     }
 }
 
