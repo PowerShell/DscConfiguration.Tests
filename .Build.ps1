@@ -74,7 +74,8 @@ Enter-Build {
 Add-BuildTask LoadResourceModules {
     # Discover required modules from Configuration manifest (TestHelper)
     $ProjectModuleName = $env:ProjectName+'Module'
-    $ManifestData = Import-PowerShellDataFile -Path "$env:BuildFolder\$ProjectModuleName\$ProjectModuleName.psd1"
+    $ManifestData = Import-PowerShellDataFile -Path `
+        "$env:BuildFolder\$ProjectModuleName\$ProjectModuleName.psd1"
     $script:Modules = Get-RequiredGalleryModules -ManifestData $ManifestData -Install
     Write-Output "Loaded modules:`n$($script:Modules | ForEach-Object -Process {$_.Name})"
 }
@@ -83,12 +84,14 @@ Add-BuildTask LoadResourceModules {
 .Synopsis: Load the Configuration modules
 #>
 Add-BuildTask LoadConfigurationScript {
-    # Prep and import Configurations from module (TestHelper)
-    Set-Location $env:BuildFolder\$env:ProjectName
-    Import-ModuleFromSource -Name $env:ProjectName
-    $script:Configurations = Invoke-ConfigurationPrep -Module $env:ProjectName -Path `
+    # Prep and import Configurations
+    $ProjectModuleName = $env:ProjectName+'Module'
+    Set-Location "$env:BuildFolder\$ProjectModuleName\"
+    Import-ModuleFromSource -Name $$ProjectModuleName
+    $script:Configurations = Invoke-ConfigurationPrep -Module $$ProjectModuleName -Path `
         "$env:TEMP\$env:ProjectID"
-    Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process {$_.Name})"
+    Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process `
+        {$_.Name})"
 }
 
 <#
@@ -96,7 +99,8 @@ Add-BuildTask LoadConfigurationScript {
 #>
 Add-BuildTask LintUnitTests {
     $testResultsFile = "$env:BuildFolder\LintUnitTestsResults.xml"
-    $Pester = Invoke-Pester -Tag Lint, Unit -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
+    $Pester = Invoke-Pester -Tag Lint, Unit -OutputFormat NUnitXml -OutputFile `
+        $testResultsFile -PassThru
     
     (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
     (Resolve-Path $testResultsFile))
