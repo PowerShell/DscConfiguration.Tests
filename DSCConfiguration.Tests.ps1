@@ -275,18 +275,18 @@ Describe 'Common Tests - File Formatting' -Tag Lint {
 <#
 #>
 Describe 'Common Tests - Configuration Module Requirements' -Tag Unit {
-    $Name = -join ($env:ProjectName,'Module')
-    $Files = Get-ChildItem -Path $env:BuildFolder\$Name
-    $Manifest = Import-PowerShellDataFile -Path "$env:BuildFolder\$Name\$Name.psd1"
+    $ProjectModuleName = -join ($env:ProjectName,'Module')
+    $Files = Get-ChildItem -Path $env:BuildFolder\$ProjectModuleName
+    $Manifest = Import-PowerShellDataFile -Path "$env:BuildFolder\$ProjectModuleName\$ProjectModuleName.psd1"
 
-    Context "$Name module manifest properties" {
+    Context "$ProjectModuleName module manifest properties" {
         It 'Contains a module manifest that aligns to the folder and module names' {
-            $Files.Name.Contains("$Name.psd1") | Should Be True
+            $Files.Name.Contains("$ProjectModuleName.psd1") | Should Be True
         }
         It 'Contains a readme' {
             $Files.Name.Contains("README.md") | Should Be True
         }
-        It "Manifest $Name.psd1 should import as a data file" {
+        It "Manifest $ProjectModuleName.psd1 should import as a data file" {
             $Manifest | Should BeOfType 'Hashtable'
         }
         It 'Should have a GUID in the manifest' {
@@ -320,7 +320,7 @@ Describe 'Common Tests - Configuration Module Requirements' -Tag Unit {
             $Manifest.PrivateData.PSData.ProjectURI | Should Not Be Null
         }
     }
-    Context "$Name required modules" {
+    Context "$ProjectModuleName required modules" {
         ForEach ($RequiredModule in $Manifest.RequiredModules[0]) {
             if ($RequiredModule.GetType().Name -eq 'Hashtable') {
                 It "$($RequiredModule.ModuleName) version $($RequiredModule.ModuleVersion) should be found in the PowerShell public gallery" {
@@ -340,19 +340,19 @@ Describe 'Common Tests - Configuration Module Requirements' -Tag Unit {
             }
         }
     }
-    Context "$Name module" {
-        It "$Name imports as a module" {
-            {Import-Module -Name $Name} | Should Not Throw
+    Context "$ProjectModuleName module" {
+        It "$ProjectModuleName imports as a module" {
+            {Import-Module -Name $ProjectModuleName} | Should Not Throw
         }
     }
-    Context "$Name configuration script" {
-        It "$env:BuildFolder\$Name.ps1 should execute as a script without error" {
-            {. $env:BuildFolder\$Name.ps1} | Should Not Throw
+    Context "$env:ProjectName configuration script" {
+        It "$env:BuildFolder\$env:ProjectName.ps1 should execute as a script without error" {
+            {. $env:BuildFolder\$env:ProjectName.ps1} | Should Not Throw
         }
-        It "$Name should provide configurations" {
+        It "$env:ProjectName should provide configurations" {
             # this could produce a false positive if the build machine has other known
             # configurations loaded, but scripts are not identified as source
-            . $env:BuildFolder\$Name.ps1
+            . $env:BuildFolder\$env:ProjectName.ps1
             $Configurations = Get-Command -Type Configuration | Where-Object {$_.Source -eq ''} | ForEach-Object {$_.Name}
             $Configurations.count | Should BeGreaterThan 0
         }
@@ -424,7 +424,8 @@ Describe 'Common Tests - Azure VM' -Tag AzureVMIntegration {
     . $env:BuildFolder\$env:ProjectName.ps1
     $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Source -eq ''} | ForEach-Object {$_.Name}
 
-    $OSVersion = (Import-PowerShellDataFile $env:BuildFolder\$env:ProjectName\$env:ProjectName.psd1).PrivateData.PSData.WindowsOSVersion
+    $ProjectModuleName = -join ($env:ProjectName,'Module')
+    $OSVersion = (Import-PowerShellDataFile $env:BuildFolder\$ProjectModuleName\$ProjectModuleName.psd1).PrivateData.PSData.WindowsOSVersion
 
     $Nodes = Get-AzureRMAutomationDSCNode -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount
     $NodeNames = $Nodes | ForEach-Object {$_.Name}
