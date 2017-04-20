@@ -154,7 +154,7 @@ function Invoke-ConfigurationPrep
     {
         # Discover OS versions, or default to Server 2016 Datacenter Edition
         $WindowsOSVersion = if ($ModuleData = `
-        (Get-Module -Name $Module).PrivateData.PSData.WindowsOSVersion) {$ModuleData}
+        (Get-Module -Name $Module).PrivateData.WindowsOSVersion) {$ModuleData}
         else {'2016-Datacenter'}
 
         # Get list of configurations loaded from module
