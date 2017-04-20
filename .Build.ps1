@@ -43,21 +43,25 @@ Exit-BuildTask {
 #>
 Enter-Build {
     Write-Output "The build folder is $env:BuildFolder"
+    
     # Optimize timing for AzureRM module to install
     Write-Output "Installing latest AzureRM module as background job"
     $ARM = Start-Job -ScriptBlock {
         Install-Module "AzureRm.Resources", "AzureRM.Automation" -force
     }
-    # Load modules from test repo
+
+    # Load helper module from test repo
     Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
     
+    # Preload NuGet package provider
+    $Nuget = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.205 -Force
+
     # Install supporting environment modules from PSGallery
+    Write-Output "Installing modules to support the build environment:`n$EnvironmentModules"
     $EnvironmentModules = @(
         'Pester',
         'PSScriptAnalyzer'
     )
-    $Nuget = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.205 -Force
-    Write-Output "Installing modules to support the build environment:`n$EnvironmentModules"
     Install-Module -Name $EnvironmentModules -Repository PSGallery -Force
     
     # Fix module path if duplicates exist (TestHelper)
@@ -69,8 +73,10 @@ Enter-Build {
 #>
 Add-BuildTask LoadResourceModules {
     # Discover required modules from Configuration manifest (TestHelper)
-    $script:Modules = Get-RequiredGalleryModules -ManifestData (Import-PowerShellDataFile `
-    -Path "$env:BuildFolder\$env:ProjectName\$env:ProjectName.psd1") -Install
+    $ProjectModuleName = $env:ProjectName+'Module'
+    $ManifestData = Import-PowerShellDataFile -Path `
+        "$env:BuildFolder\$ProjectModuleName\$ProjectModuleName.psd1"
+    $script:Modules = Get-RequiredGalleryModules -ManifestData $ManifestData -Install
     Write-Output "Loaded modules:`n$($script:Modules | ForEach-Object -Process {$_.Name})"
 }
 
@@ -84,7 +90,8 @@ Add-BuildTask LoadConfigurationScript {
     Import-ModuleFromSource -Name $$ProjectModuleName
     $script:Configurations = Invoke-ConfigurationPrep -Module $$ProjectModuleName -Path `
         "$env:TEMP\$env:ProjectID"
-    Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process {$_.Name})"
+    Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process `
+        {$_.Name})"
 }
 
 <#
@@ -92,11 +99,12 @@ Add-BuildTask LoadConfigurationScript {
 #>
 Add-BuildTask LintUnitTests {
     $testResultsFile = "$env:BuildFolder\LintUnitTestsResults.xml"
-
-    $Pester = Invoke-Pester -Tag Lint, Unit -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
+    $Pester = Invoke-Pester -Tag Lint, Unit -OutputFormat NUnitXml -OutputFile `
+        $testResultsFile -PassThru
     
     (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
     (Resolve-Path $testResultsFile))
+
     $host.SetShouldExit($Pester.FailedCount)
 }
 
@@ -106,9 +114,9 @@ Add-BuildTask LintUnitTests {
 Add-BuildTask AzureLogin {
     Write-Output "Waiting for AzureRM module to finish installing"
     $ARM = Wait-Job -Job $ARM
+    
     # Login to Azure using information from params
-    Invoke-AzureSPNLogin -ApplicationID $env:ApplicationID -ApplicationPassword `
-    $env:ApplicationPassword -TenantID $env:TenantID -SubscriptionID $env:SubscriptionID
+    Invoke-AzureSPNLogin
 }
 
 <#
@@ -130,8 +138,7 @@ Add-BuildTask AzureAutomationAssets {
             $Configurations
         )
         Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
-        Invoke-AzureSPNLogin -ApplicationID $env:ApplicationID -ApplicationPassword `
-        $env:ApplicationPassword -TenantID $env:TenantID -SubscriptionID $env:SubscriptionID
+        Invoke-AzureSPNLogin
 
         # Import the modules discovered as requirements to Azure Automation (TestHelper)
         foreach ($ImportModule in $Modules) {
@@ -163,7 +170,9 @@ Add-BuildTask AzureVM {
     ForEach ($Configuration in $script:Configurations) {
         ForEach ($WindowsOSVersion in $Configuration.WindowsOSVersion) {
         
-            If ($null -eq $WindowsOSVersion) {throw "No OS version was provided for deployment of $($Configuration.Name)"}
+            If ($null -eq $WindowsOSVersion) {
+                throw "No OS version was provided for deployment of $($Configuration.Name)"
+            }
             Write-Output "Initiating background deployment of $WindowsOSVersion and bootstrapping configuration $($Configuration.Name)"
         
             $JobName = "$($Configuration.Name).$($WindowsOSVersion.replace('-',''))"
@@ -171,20 +180,18 @@ Add-BuildTask AzureVM {
             $Script:VMDeployment = Start-Job -ScriptBlock {
                 param
                 (
-                    [string]$env:BuildID,
                     [string]$Configuration,
                     [string]$WindowsOSVersion
                 )
                 Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
             
-                Invoke-AzureSPNLogin -ApplicationID $env:ApplicationID -ApplicationPassword `
-            $env:ApplicationPassword -TenantID $env:TenantID -SubscriptionID $env:SubscriptionID
+                Invoke-AzureSPNLogin
             
-                New-AzureTestVM -BuildID $env:BuildID -Configuration $Configuration -WindowsOSVersion `
-            $WindowsOSVersion
+                New-AzureTestVM -Configuration $Configuration -WindowsOSVersion $WindowsOSVersion
 
-            } -ArgumentList @($env:BuildID, $Configuration.Name, $WindowsOSVersion) -Name $JobName
+            } -ArgumentList @($Configuration.Name, $WindowsOSVersion) -Name $JobName
             $Script:VMDeployments += $Script:VMDeployment
+
             # pause for provisioning to avoid conflicts (this is a case where slower is faster)
             Start-Sleep 15
         }
@@ -200,9 +207,8 @@ Add-BuildTask IntegrationTestAzureAutomationDSC {
     Receive-Job $Script:AzureAutomationJob
 
     $testResultsFile = "$env:BuildFolder\AADSCIntegrationTestsResults.xml"
-
     $Pester = Invoke-Pester -Tag AADSCIntegration -OutputFormat NUnitXml `
-    -OutputFile $testResultsFile -PassThru
+        -OutputFile $testResultsFile -PassThru
     
     (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
     (Resolve-Path $testResultsFile))
@@ -217,6 +223,7 @@ Add-BuildTask IntegrationTestAzureVMs {
     Write-Host "Waiting for all nodes to finish deployment"
     ForEach ($VMDeploymentJob in $Script:VMDeployments) {
         $Wait = Wait-Job -Job $VMDeploymentJob
+        
         Write-Output `n
         Write-Output "########## Output from $($VMDeploymentJob.Name) ##########"
         Receive-Job -Job $VMDeploymentJob
@@ -229,7 +236,7 @@ Add-BuildTask IntegrationTestAzureVMs {
     $testResultsFile = "$env:BuildFolder\VMIntegrationTestsResults.xml"
 
     $Pester = Invoke-Pester -Tag AzureVMIntegration -OutputFormat NUnitXml `
-    -OutputFile $testResultsFile -PassThru
+        -OutputFile $testResultsFile -PassThru
     
     (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
     (Resolve-Path $testResultsFile))
