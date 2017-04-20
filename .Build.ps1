@@ -78,11 +78,12 @@ Add-BuildTask LoadResourceModules {
 .Synopsis: Load the Configuration modules
 #>
 Add-BuildTask LoadConfigurationScript {
-    # Prep and import Configurations from module (TestHelper)
-    Set-Location $env:BuildFolder\$env:ProjectName
-    Import-ModuleFromSource -Name $env:ProjectName
-    $script:Configurations = Invoke-ConfigurationPrep -Module $env:ProjectName -Path `
-    "$env:TEMP\$env:ProjectID"
+    # Prep and import Configurations
+    $ProjectModuleName = $env:ProjectName+'Module'
+    Set-Location "$env:BuildFolder\$ProjectModuleName\"
+    Import-ModuleFromSource -Name $$ProjectModuleName
+    $script:Configurations = Invoke-ConfigurationPrep -Module $$ProjectModuleName -Path `
+        "$env:TEMP\$env:ProjectID"
     Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process {$_.Name})"
 }
 
