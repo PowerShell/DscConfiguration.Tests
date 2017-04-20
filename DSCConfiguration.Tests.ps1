@@ -275,7 +275,7 @@ Describe 'Common Tests - File Formatting' -Tag Lint {
 <#
 #>
 Describe 'Common Tests - Configuration Module Requirements' -Tag Unit {
-    $Name = $env:ProjectName+'Module'
+    $Name = -join ($env:ProjectName,'Module')
     $Files = Get-ChildItem -Path $env:BuildFolder\$Name
     $Manifest = Import-PowerShellDataFile -Path "$env:BuildFolder\$Name\$Name.psd1"
 
