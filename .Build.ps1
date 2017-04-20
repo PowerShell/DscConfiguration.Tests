@@ -73,7 +73,7 @@ Enter-Build {
 #>
 Add-BuildTask LoadResourceModules {
     # Discover required modules from Configuration manifest (TestHelper)
-    $ProjectModuleName = $env:ProjectName+'Module'
+    $ProjectModuleName = -join ($env:ProjectName,'Module')
     $ManifestData = Import-PowerShellDataFile -Path `
         "$env:BuildFolder\$ProjectModuleName\$ProjectModuleName.psd1"
     $script:Modules = Get-RequiredGalleryModules -ManifestData $ManifestData -Install
@@ -85,7 +85,7 @@ Add-BuildTask LoadResourceModules {
 #>
 Add-BuildTask LoadConfigurationScript {
     # Prep and import Configurations
-    $ProjectModuleName = $env:ProjectName+'Module'
+    $ProjectModuleName = -join ($env:ProjectName,'Module')
     Set-Location "$env:BuildFolder\$ProjectModuleName\"
     Import-ModuleFromSource -Name $ProjectModuleName
     $script:Configurations = Invoke-ConfigurationPrep -Module $ProjectModuleName -Path `
