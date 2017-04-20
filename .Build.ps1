@@ -92,6 +92,8 @@ Add-BuildTask LoadConfigurationScript {
         "$env:TEMP\$env:ProjectID"
     Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process `
         {$_.Name})"
+    Write-Output "Supported operating systems:`n$($script:Configurations | ForEach-Object -Process `
+        {$_.WindowsOSVersion})"
 }
 
 <#
@@ -171,7 +173,7 @@ Add-BuildTask AzureVM {
         ForEach ($WindowsOSVersion in $Configuration.WindowsOSVersion) {
         
             If ($null -eq $WindowsOSVersion) {
-                throw "No OS version was provided for deployment of $($Configuration.Name)"
+                Write-Output "No OS version was provided for deployment of $($Configuration.Name)"
             }
             Write-Output "Initiating background deployment of $WindowsOSVersion and bootstrapping configuration $($Configuration.Name)"
         
