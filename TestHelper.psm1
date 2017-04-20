@@ -117,7 +117,8 @@ function Invoke-ConfigurationPrep
     [CmdletBinding()]     
     param
     (
-        [string]$Module = "*",
+        [Parameter(Mandatory=$true)]
+        [string]$Module,
         [string]$Path = "$env:TEMP\DSCConfigurationScripts"
     )
     try 
@@ -139,9 +140,11 @@ function Invoke-ConfigurationPrep
         New-Item -Path $Path -ItemType Directory -Force | Out-Null
     
         # Create a unique script for each configuration, with a name that matches the configuration
+        # this is a safeguard in case multiple configurations are given in a file
         foreach ($Configuration in $Configurations) {
             if ($Config = (Get-Command $Configuration).ScriptBlock) {
                 $Configuration.Location = "$Path\$Configuration.ps1"
+                # write a new configuration using the scriptblock loaded from the file
                 "Configuration $Configuration`n{" | Out-File $Configuration.Location
                 $Config | Out-File $Configuration.Location -Append
                 "}`n" | Out-File $Configuration.Location -Append
