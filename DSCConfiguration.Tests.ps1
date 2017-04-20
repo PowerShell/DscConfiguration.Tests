@@ -380,7 +380,8 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
     $ResourceGroup = "TestAutomation$env:BuildID"
     $AutomationAccount = "AADSC$env:BuildID"
 
-    $CurrentModuleManifest = Get-ChildItem -Path $env:BuildFolder\$env:ProjectName -Filter "$env:ProjectName.psd1" | ForEach-Object {$_.FullName}
+    $ProjectModuleName = $env:ProjectName+'Module'
+    $CurrentModuleManifest = Get-ChildItem -Path $env:BuildFolder\$ProjectModuleName -Filter "$ProjectModuleName.psd1" | ForEach-Object {$_.FullName}
     $RequiredModules = Get-RequiredGalleryModules (Import-PowerShellDataFile $CurrentModuleManifest)
 
     . $env:BuildFolder\$env:ProjectName.ps1
