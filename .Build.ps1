@@ -104,6 +104,9 @@ Add-BuildTask LintUnitTests {
     $Pester = Invoke-Pester -Tag Lint, Unit -OutputFormat NUnitXml -OutputFile `
         $testResultsFile -PassThru
     
+    (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
+    (Resolve-Path $testResultsFile))
+
     Push-AppveyorArtifact -Path (Resolve-Path $testResultsFile)
 
     $host.SetShouldExit($Pester.FailedCount)
@@ -210,7 +213,10 @@ Add-BuildTask IntegrationTestAzureAutomationDSC {
     $testResultsFile = "$env:BuildFolder\AADSCIntegrationTestsResults.xml"
     $Pester = Invoke-Pester -Tag AADSCIntegration -OutputFormat NUnitXml `
         -OutputFile $testResultsFile -PassThru
-    
+
+    (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
+    (Resolve-Path $testResultsFile))
+
     Push-AppveyorArtifact -Path (Resolve-Path $testResultsFile)
 
     $host.SetShouldExit($Pester.FailedCount)
@@ -237,7 +243,10 @@ Add-BuildTask IntegrationTestAzureVMs {
 
     $Pester = Invoke-Pester -Tag AzureVMIntegration -OutputFormat NUnitXml `
         -OutputFile $testResultsFile -PassThru
-    
+
+    (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
+    (Resolve-Path $testResultsFile))
+
     Push-AppveyorArtifact -Path (Resolve-Path $testResultsFile)
 
     $host.SetShouldExit($Pester.FailedCount)
