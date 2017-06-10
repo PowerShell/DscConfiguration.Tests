@@ -242,12 +242,18 @@ function New-ResourceGroupandAutomationAccount
     (
         [string]$SubscriptionID = $env:SubscriptionID,
         [string]$TenantID = $env:TenantID,
-        [string]$Location = 'EastUS2',
+        [string]$Location = $env:Location,
         [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
         [string]$AutomationAccountName = 'AADSC'+$env:BuildID
     )
     try 
     {
+        # Default the location to 'EastUS2' if not passed
+        If ([String]::IsNullOrEmpty($Location))
+        {
+            $Location = 'EastUS2'
+        }
+
         # Make sure subscription is selected
         $Subscription = Select-AzureRMSubscription -SubscriptionID $SubscriptionID `
         -TenantID $TenantID
