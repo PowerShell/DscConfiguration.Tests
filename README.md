@@ -15,3 +15,5 @@ on Azure.
   by defining the `$ENV:Location` environment variable. Will default
   to 'EastUS2' if not specified.
 * NUnit Pester Test results uploaded to AppVeyor as artifacts.
+* Updated `New-ResourceGroupandAutomationAccount` to automatically
+  register `Microsoft.Automation` resource provider.
