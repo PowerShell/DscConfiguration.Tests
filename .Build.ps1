@@ -62,7 +62,7 @@ Enter-Build {
         'Pester',
         'PSScriptAnalyzer'
     )
-    Install-Module -Name $EnvironmentModules -Repository PSGallery -Force
+    Install-Module -Name $EnvironmentModules -Repository PSGallery -Force -SkipPublisherCheck
 
     # Fix module path if duplicates exist (TestHelper)
     Invoke-UniquePSModulePath
