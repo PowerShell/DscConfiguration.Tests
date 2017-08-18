@@ -242,20 +242,33 @@ function New-ResourceGroupandAutomationAccount
     (
         [string]$SubscriptionID = $env:SubscriptionID,
         [string]$TenantID = $env:TenantID,
-        [string]$Location = 'EastUS2',
+        [string]$Location = $env:Location,
         [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
         [string]$AutomationAccountName = 'AADSC'+$env:BuildID
     )
     try 
     {
+        # Default the location to 'EastUS2' if not passed
+        If ([String]::IsNullOrEmpty($Location))
+        {
+            $Location = 'EastUS2'
+        }
+
         # Make sure subscription is selected
         $Subscription = Select-AzureRMSubscription -SubscriptionID $SubscriptionID `
-        -TenantID $TenantID
+            -TenantID $TenantID
+
+        Write-Output "Registering 'Microsoft.Automation' resource provider"
+
+            # Ensure the Microsoft.Automation resource provider is registered
+        Register-AzureRmResourceProvider -ProviderNamespace 'Microsoft.Automation'
 
         # Create Resource Group
         $ResourceGroup = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location `
-        -Force
+            -Force
+
         Write-Output "Provisioning of Resource Group $ResourceGroupName returned $($ResourceGroup.ProvisioningState)"
+
         # Validate provisioning of resource group
         $ResourceGroupExists = Get-AzureRmResourceGroup -Name $ResourceGroupName
         If ($Null -eq $ResourceGroupExists) {
@@ -264,11 +277,14 @@ function New-ResourceGroupandAutomationAccount
 
         # Create Azure Automation account
         $AutomationAccount = New-AzureRMAutomationAccount -ResourceGroupName $ResourceGroupName `
-        -Name $AutomationAccountName -Location $Location -Plan Basic
+            -Name $AutomationAccountName -Location $Location -Plan Basic
+
         Write-Output "Provisioning of Automation Account $AutomationAccountName returned $($AutomationAccount.State)"
+
         # Validate provisioning of resource group
         $AutomationAccountExists = Get-AzureRmAutomationAccount -ResourceGroupName $ResourceGroupName `
-        -Name $AutomationAccountName
+            -Name $AutomationAccountName
+
         If ($Null -eq $AutomationAccountExists) {
             throw "Automation account $AutomationAccountName could not be validated"
         }
