@@ -66,34 +66,22 @@ Enter-Build {
     
     # Fix module path if duplicates exist (TestHelper)
     Invoke-UniquePSModulePath
+
 }
 
 <#
-.Synopsis: Load the required resources
-#>
-Add-BuildTask LoadResourceModules {
-    # Discover required modules from Configuration manifest (TestHelper)
-    $ProjectModuleName = -join ($env:ProjectName,'Module')
-    $ManifestData = Import-PowerShellDataFile -Path `
-        "$env:BuildFolder\$ProjectModuleName\$ProjectModuleName.psd1"
-    $script:Modules = Get-RequiredGalleryModules -ManifestData $ManifestData -Install
-    Write-Output "Loaded modules:`n$($script:Modules | ForEach-Object -Process {$_.Name})"
-}
-
-<#
-.Synopsis: Load the Configuration modules
+.Synopsis: Load the Configuration script
 #>
 Add-BuildTask LoadConfigurationScript {
     # Prep and import Configurations
-    $ProjectModuleName = -join ($env:ProjectName,'Module')
-    Set-Location "$env:BuildFolder\$ProjectModuleName\"
-    Import-ModuleFromSource -Name $ProjectModuleName
-    $script:Configurations = Invoke-ConfigurationPrep -Module $ProjectModuleName -Path `
-        "$env:TEMP\$env:ProjectID"
+    Set-Location "$env:BuildFolder\$ProjectName\"
+    $script:Configurations = Invoke-ConfigurationPrep -Path "$env:BuildFolder\$ProjectName\$ProjectName.ps1"
     Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process `
         {$_.Name})"
     Write-Output "Supported operating systems:`n$($script:Configurations | ForEach-Object -Process `
-        {$_.WindowsOSVersion})"
+        {$_.OSVersions})"
+    Write-Output "Required Modules:`n$($script:Configurations | ForEach-Object -Process `
+        {$_.RequiredModules})"
 }
 
 <#
@@ -262,6 +250,6 @@ Exit-Build {
 <#
 .Synopsis: default build tasks
 #>
-Add-BuildTask . LoadResourceModules, LoadConfigurationScript, LintUnitTests, AzureLogin, `
+Add-BuildTask . LoadConfigurationScript, LintUnitTests, AzureLogin, `
 ResourceGroupAndAutomationAccount, AzureAutomationAssets, AzureVM, `
 IntegrationTestAzureAutomationDSC, IntegrationTestAzureVMs

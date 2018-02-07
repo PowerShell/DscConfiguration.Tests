@@ -31,157 +31,40 @@ function Invoke-UniquePSModulePath
     .SYNOPSIS
 
 #>
-function Get-RequiredGalleryModules
-{
-    [CmdletBinding()]
-    [OutputType([System.Object[]])]
-    param(
-        [Parameter(Mandatory=$true)]
-        [hashtable]$ManifestData,
-        [switch]$Install
-    )
-    try {
-        # Load module data and create array of objects containing prerequisite details for use 
-        # later in Azure Automation
-        $ModulesInformation = @()
-        foreach($RequiredModule in $ManifestData.RequiredModules[0])
-        {
-            # Placeholder object to store module names and locations
-            $ModuleReference = New-Object -TypeName PSObject
-            
-            # If no version is given, get the latest version
-            if ($RequiredModule.gettype().Name -eq 'String')
-            {
-                if ($galleryReference = Invoke-RestMethod -Method Get `
-                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$RequiredModule'" `
-                -ErrorAction Continue)
-                {
-                    Write-Verbose "Identified module $RequiredModule in the PowerShell Gallery"
-                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
-                    -Value $RequiredModule
-                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `
-                    -Value ($galleryReference | Where-Object {$_.Properties.IsLatestVersion.'#text' `
-                    -eq $true}).content.src
-                    $ModulesInformation += $ModuleReference
-                }
-                else {
-                    throw "The module $RequiredModule was not found in the gallery"
-                }
-                if ($Install -eq $true)
-                {
-                    Write-Verbose "Installing module: $RequiredModule"
-                    Install-Module -Name $RequiredModule -force
-                }
-            }
-
-            # If a version is given, get it specifically
-            if ($RequiredModule.gettype().Name -eq 'Hashtable')
-            {
-                if ($galleryReference = Invoke-RestMethod -Method Get `
-                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.ModuleName)'" `
-                -ErrorAction Continue)
-                {
-                    Write-Verbose "Identified module $($RequiredModule.ModuleName) in the PowerShell Gallery"
-                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
-                    -Value $RequiredModule.ModuleName
-                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `
-                    -Value ($galleryReference | Where-Object {$_.Properties.Version `
-                    -eq $RequiredModule.ModuleVersion}).content.src
-                    $ModulesInformation += $ModuleReference
-                }
-                else {
-                    throw "The module $($RequiredModule.ModuleName) was not found in the gallery"
-                }
-                if ($Install -eq $true)
-                {
-                    Write-Verbose "Installing module: $($RequiredModule.ModuleName) version $($RequiredModule.ModuleVersion)"
-                    Install-Module -Name $RequiredModule.ModuleName `
-                    -RequiredVersion $RequiredModule.ModuleVersion -force
-                }
-            }
-        }
-        return $ModulesInformation    
-    }
-    catch [System.Exception] 
-    {
-        throw "An error occured while getting modules from PowerShellGallery.com`n$($_.exception.message)"
-    }
-}
-
-<#
-    .SYNOPSIS
-
-#>
-function Import-ModuleFromSource
-{
-    [CmdletBinding()]     
-    param
-    (
-        [Parameter(Mandatory=$true)]
-        [string]$Name
-    )
-    try 
-    {
-        if ($ModuleDir = New-Item -Type Directory `
-        -Path $env:ProgramFiles\WindowsPowerShell\Modules\$Name -force) {
-            Copy-Item -Path .\$Name.psd1 -Destination $ModuleDir -force
-            if (Test-Path .\$Name.psm1) {
-                Copy-Item -Path .\$Name.psm1 -Destination $ModuleDir -force
-            }
-            Import-Module -Name $Name
-        }
-    }
-    catch [System.Exception] 
-    {
-        throw "An error occured while importing module $Name`n$($_.exception.message)"
-    }
-}
-
-<#
-    .SYNOPSIS
-
-#>
 function Invoke-ConfigurationPrep
 {
     [CmdletBinding()]     
     param
     (
         [Parameter(Mandatory=$true)]
-        [string]$Module,
-        [string]$Path = "$env:TEMP\DSCConfigurationScripts"
+        [string]$Path
     )
     try 
     {
         # Discover OS versions, or default to Server 2016 Datacenter Edition
-        $WindowsOSVersion = if ($ModuleData = `
-        (Get-Module -Name $Module).PrivateData.WindowsOSVersion) {$ModuleData}
+        $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path $Path) {
+            $ScriptFileInfo.PrivateData.split(',')
+        }
         else {'2016-Datacenter'}
 
         # Get list of configurations loaded from module
         . $env:BuildFolder\$env:ProjectName.ps1
-        $Configurations = Get-Command -Type Configuration
-        $Configurations | Add-Member -MemberType NoteProperty -Name Location -Value $null
-        $Configurations | Add-Member -MemberType NoteProperty -Name WindowsOSVersion `
-        -Value $WindowsOSVersion
-
-
-        # Create working folder
-        New-Item -Path $Path -ItemType Directory -Force | Out-Null
-    
-        # Create a unique script for each configuration, with a name that matches the configuration
-        # this is a safeguard in case multiple configurations are given in a file
-        foreach ($Configuration in $Configurations) {
-            if ($Config = (Get-Command $Configuration).ScriptBlock) {
-                $Configuration.Location = "$Path\$Configuration.ps1"
-                # write a new configuration using the scriptblock loaded from the file
-                "Configuration $Configuration`n{" | Out-File $Configuration.Location
-                $Config | Out-File $Configuration.Location -Append
-                "}`n" | Out-File $Configuration.Location -Append
-            }
+        $Configuration = Get-Command -Type Configuration | Where-Object {
+            $_.Name -eq $ProjectName
         }
-        Write-Verbose "Prepared configurations:`n$($Configurations | ForEach-Object `
+        $Configuration | Add-Member -MemberType NoteProperty -Name RequiredModules `
+        -Value $RequiredModules
+        $Configuration | Add-Member -MemberType NoteProperty -Name OSVersions `
+        -Value $OSVersions
+
+        foreach ($Module in $Configuration.RequiredModules) {
+            Install-Module $Module -force
+            Write-Verbose "Installed module: $Module"
+        }
+
+        Write-Verbose "Prepared configurations:`n$($Configuration | ForEach-Object `
         -Process {$_.Name})"
-        return $Configurations
+        return $Configuration
     }
     catch [System.Exception] 
     {

@@ -14,6 +14,7 @@ environment:
   ProjectName: $(APPVEYOR_PROJECT_NAME)
   ProjectID: $(APPVEYOR_POJECT_ID)
   BuildID: $(APPVEYOR_BUILD_ID)
+  RequiredModules: Module1,Module2
 matrix:
   fast_finish: true
 install:
@@ -21,6 +22,9 @@ install:
   - ps: |
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.205 -Force | Out-Null
         Install-Module InvokeBuild -force
+        foreach ($module in $env:RequiredModules.split(',')) {
+          Install-Module $module -force
+        }
 build_script:
   - ps: |
         if (Test-Path -Path .\.build.ps1) {
