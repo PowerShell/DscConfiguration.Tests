@@ -54,17 +54,6 @@ Enter-Build {
     # Load helper module from test repo
     Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
     
-    # Preload NuGet package provider
-    $Nuget = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.205 -Force
-
-    # Install supporting environment modules from PSGallery
-    Write-Output "Installing modules to support the build environment:`n$EnvironmentModules"
-    $EnvironmentModules = @(
-        'Pester',
-        'PSScriptAnalyzer'
-    )
-    Install-Module -Name $EnvironmentModules -Repository PSGallery -Force
-    
     # Fix module path if duplicates exist (TestHelper)
     Invoke-UniquePSModulePath
 
