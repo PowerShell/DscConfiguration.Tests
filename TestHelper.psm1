@@ -36,7 +36,7 @@ function Invoke-ConfigurationPrep
     try 
     {
         # Validate file exists as expected
-        $testpath = Test-Path "$env:BuildFolder\$env:ProjectName.ps1"
+        $TestPath = Test-Path "$env:BuildFolder\$env:ProjectName.ps1"
         
         # Discover OS versions, or default to Server 2016 Datacenter Edition
         $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
@@ -44,10 +44,15 @@ function Invoke-ConfigurationPrep
         }
         else {'2016-Datacenter'}
 
+        # TEST
+        $RequiredModules = if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
+            $ScriptFileInfo.RequiredModules
+        }
+
         # Get list of configurations loaded from module
         . $env:BuildFolder\$env:ProjectName.ps1
         $Configuration = Get-Command -Type Configuration | Where-Object {
-            $_.Name -eq $ProjectName
+            $_.Name -eq $env:ProjectName
         }
         $Configuration | Add-Member -MemberType NoteProperty -Name RequiredModules `
         -Value $RequiredModules
