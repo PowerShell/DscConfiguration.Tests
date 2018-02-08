@@ -55,8 +55,7 @@ Enter-Build {
     
     # Fix module path if duplicates exist (TestHelper)
     Invoke-UniquePSModulePath
-    Import-Module -Name PackageManagement -Version 1.1.7.0 -Global -Force
-    Import-Module -Name PowerShellGet -Version 1.6.0 -Global -Force            
+           
 }
 
 <#
