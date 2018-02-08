@@ -35,30 +35,29 @@ function Invoke-ConfigurationPrep
 {
     try 
     {
-        # Validate file exists as expected
+        # Validate file exists as expected for debug data
         $TestPath = Test-Path "$env:BuildFolder\$env:ProjectName.ps1"
         
-        # Discover OS versions, or default to Server 2016 Datacenter Edition
-        $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
-            $ScriptFileInfo.PrivateData.split(',')
-        }
-        else {'2016-Datacenter'}
-
-        # TEST
-        $RequiredModules = if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
-            $ScriptFileInfo.RequiredModules
+        if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
+            # Discover OS versions, or default to Server 2016 Datacenter Edition
+            $OSVersions = $ScriptFileInfo.PrivateData.split(',')
+            if (!$OSVersions) {$OSversions = '2016-Datacenter'}
+            # Discover list of required modules
+            $RequiredModules = $ScriptFileInfo.RequiredModules
         }
 
-        # Get list of configurations loaded from module
+        # Get list of configurations
         . $env:BuildFolder\$env:ProjectName.ps1
         $Configuration = Get-Command -Type Configuration | Where-Object {
             $_.Name -eq $env:ProjectName
         }
+        # Append metadata about the configuration requirements
         $Configuration | Add-Member -MemberType NoteProperty -Name RequiredModules `
         -Value $RequiredModules
         $Configuration | Add-Member -MemberType NoteProperty -Name OSVersions `
         -Value $OSVersions
 
+        # Install required modules in build environment
         foreach ($Module in $Configuration.RequiredModules) {
             Install-Module $Module -force
             Write-Verbose "Installed module: $Module"
@@ -70,7 +69,6 @@ function Invoke-ConfigurationPrep
     }
     catch [System.Exception] 
     {
-        Write-Verbose "the results of test path were $testpath"
         throw "An error occured while preparing configurations for import`n$($_.exception.message)`nThe result of test-path was $testpath."
     }
 }
