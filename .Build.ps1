@@ -63,6 +63,9 @@ Enter-Build {
 #>
 Add-BuildTask LoadConfigurationScript {
     # Prep and import Configurations
+    $tempFile = New-TemporaryFile
+    New-ScriptFileInfo -Path $tempFile -Version 0.1.0 -Author test -Description test -Guid (new-guid).Guid
+    Get-Content $tempFile
     $script:Configurations = Invoke-ConfigurationPrep
     Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process `
         {$_.Name})"
