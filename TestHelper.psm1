@@ -69,7 +69,7 @@ function Invoke-ConfigurationPrep
     }
     catch [System.Exception] 
     {
-        throw "An error occured while preparing configurations for import`n$($_.exception.message)`nThe result of test-path was $testpath."
+        throw "An error occured while loading configurations.  The error was:`n$($_.exception.message)`nThe result of test-path was $testpath."
     }
 }
 
