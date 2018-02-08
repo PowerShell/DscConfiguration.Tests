@@ -55,7 +55,6 @@ Enter-Build {
     
     # Fix module path if duplicates exist (TestHelper)
     Invoke-UniquePSModulePath
-           
 }
 
 <#
