@@ -41,9 +41,6 @@ function Invoke-ConfigurationPrep
     )
     try 
     {
-        Get-Location
-        Get-ChildItem | % Name
-        
         # Validate file exists as expected
         $testpath = Test-Path $Path
         Write-Verbose "the results of test path were $testpath"
