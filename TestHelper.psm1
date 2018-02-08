@@ -56,6 +56,8 @@ function Invoke-ConfigurationPrep
         -Value $RequiredModules
         $Configuration | Add-Member -MemberType NoteProperty -Name OSVersions `
         -Value $OSVersions
+        $Configuration | Add-Member -MemberType NoteProperty -Name Location `
+        -Value $env:BuildFolder\$env:ProjectName.ps1
 
         Write-Verbose "Prepared configurations:`n$($Configuration | ForEach-Object `
         -Process {$_.Name})"
