@@ -41,13 +41,11 @@ function Invoke-ConfigurationPrep
     )
     try 
     {
-        $contents = Get-ChildItem .\
-        Write-Verbose $contents
-
+        Get-ChildItem -Verbose
+        
         # Validate file exists as expected
-        $testpath = Test-Path $Path
-        Write-Verbose $testpath
-
+        Test-Path $Path -Verbose
+        
         # Discover OS versions, or default to Server 2016 Datacenter Edition
         $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path $Path) {
             $ScriptFileInfo.PrivateData.split(',')
