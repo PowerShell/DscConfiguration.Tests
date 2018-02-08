@@ -41,6 +41,7 @@ function Invoke-ConfigurationPrep
     )
     try 
     {
+        Get-Content $Path
         # Discover OS versions, or default to Server 2016 Datacenter Edition
         $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path $Path) {
             $ScriptFileInfo.PrivateData.split(',')
