@@ -57,15 +57,6 @@ function Invoke-ConfigurationPrep
         $Configuration | Add-Member -MemberType NoteProperty -Name OSVersions `
         -Value $OSVersions
 
-        # Workaround for PowerShellGet 1.6.0
-        Uninstall-Module -Name PowerShellGet -RequiredVersion 1.6.0 -Force
-
-        # Install required modules in build environment
-        foreach ($Module in $Configuration.RequiredModules) {
-            Write-Verbose "Installing module: $Module"
-            Install-Module $Module -force
-        }
-
         Write-Verbose "Prepared configurations:`n$($Configuration | ForEach-Object `
         -Process {$_.Name})"
         return $Configuration
