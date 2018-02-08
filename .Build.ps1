@@ -42,7 +42,6 @@ Exit-BuildTask {
 .Synopsis: Baseline the environment
 #>
 Enter-Build {
-    $PSVersionTable
     Write-Output "The build folder is $env:BuildFolder"
     
     # Optimize timing for AzureRM module to install
