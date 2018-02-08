@@ -43,7 +43,7 @@ function Invoke-ConfigurationPrep
             $OSVersions = $ScriptFileInfo.PrivateData.split(',')
             if (!$OSVersions) {$OSversions = '2016-Datacenter'}
             # Discover list of required modules
-            $RequiredModules = $ScriptFileInfo.RequiredModules
+            $RequiredModules = $ScriptFileInfo.RequiredModules.split(',')
         }
 
         # Get list of configurations
@@ -59,8 +59,8 @@ function Invoke-ConfigurationPrep
 
         # Install required modules in build environment
         foreach ($Module in $Configuration.RequiredModules) {
+            Write-Verbose "Installing module: $Module"
             Install-Module $Module -force
-            Write-Verbose "Installed module: $Module"
         }
 
         Write-Verbose "Prepared configurations:`n$($Configuration | ForEach-Object `
