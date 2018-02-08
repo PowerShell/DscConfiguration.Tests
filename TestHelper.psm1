@@ -123,8 +123,8 @@ function New-ResourceGroupandAutomationAccount
         [string]$SubscriptionID = $env:SubscriptionID,
         [string]$TenantID = $env:TenantID,
         [string]$Location = $env:Location,
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
-        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
+        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
