@@ -33,19 +33,13 @@ function Invoke-UniquePSModulePath
 #>
 function Invoke-ConfigurationPrep
 {
-    [CmdletBinding()]     
-    param
-    (
-        [Parameter(Mandatory=$true)]
-        [string]$Path
-    )
     try 
     {
         # Validate file exists as expected
-        $testpath = Test-Path $Path
+        $testpath = Test-Path "$env:BuildFolder\$env:ProjectName.ps1"
         
         # Discover OS versions, or default to Server 2016 Datacenter Edition
-        $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path $Path) {
+        $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
             $ScriptFileInfo.PrivateData.split(',')
         }
         else {'2016-Datacenter'}
@@ -72,7 +66,7 @@ function Invoke-ConfigurationPrep
     catch [System.Exception] 
     {
         Write-Verbose "the results of test path were $testpath"
-        throw "An error occured while preparing configurations for import`n$($_.exception.message)`nThe results of test-path was $testpath."
+        throw "An error occured while preparing configurations for import`n$($_.exception.message)`nThe result of test-path was $testpath."
     }
 }
 
