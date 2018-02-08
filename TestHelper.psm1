@@ -41,6 +41,8 @@ function Invoke-ConfigurationPrep
     )
     try 
     {
+        Get-ChildItem .\
+
         # Validate file exists as expected
         Test-Path $Path
 
