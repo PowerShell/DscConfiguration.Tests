@@ -64,8 +64,6 @@ Enter-Build {
 Add-BuildTask LoadConfigurationScript {
     # Prep and import Configurations
     Set-Location $env:BuildFolder
-    Get-ChildItem
-    Test-Path "$env:BuildFolder\$env:ProjectName.ps1"
     $script:Configurations = Invoke-ConfigurationPrep -Path "$env:BuildFolder\$env:ProjectName.ps1"
     Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process `
         {$_.Name})"

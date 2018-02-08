@@ -43,7 +43,6 @@ function Invoke-ConfigurationPrep
     {
         # Validate file exists as expected
         $testpath = Test-Path $Path
-        Write-Verbose "the results of test path were $testpath"
         
         # Discover OS versions, or default to Server 2016 Datacenter Edition
         $OSVersions = if ($ScriptFileInfo = Test-ScriptFileInfo -Path $Path) {
@@ -72,7 +71,8 @@ function Invoke-ConfigurationPrep
     }
     catch [System.Exception] 
     {
-        throw "An error occured while preparing configurations for import`n$($_.exception.message)"
+        Write-Verbose "the results of test path were $testpath"
+        throw "An error occured while preparing configurations for import`n$($_.exception.message)`nThe results of test-path was $testpath."
     }
 }
 
