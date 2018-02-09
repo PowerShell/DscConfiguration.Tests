@@ -185,8 +185,8 @@ function Import-ModuleToAzureAutomation
     (
         [Parameter(Mandatory=$true)]
         [array]$Module,
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
-        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
+        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try
     {
@@ -218,8 +218,8 @@ function Wait-ModuleExtraction
     (
         [Parameter(Mandatory=$true)]
         [array]$Module,
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
-        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
+        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try
     {
@@ -247,8 +247,8 @@ function Import-ConfigurationToAzureAutomation
     (
         [Parameter(Mandatory=$true)]
         [psobject]$Configuration,
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
-        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
+        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
@@ -298,8 +298,8 @@ function Wait-ConfigurationCompilation
     (
         [Parameter(Mandatory=$true)]
         [psobject]$Configuration,
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
-        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
+        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
@@ -381,8 +381,8 @@ function New-AzureTestVM
     try 
     {
         # Retrieve Azure Automation DSC registration information
-        $Account = Get-AzureRMAutomationAccount -ResourceGroupName "TestAutomation$env:BuildID" `
-        -Name "AADSC$env:BuildID"
+        $Account = Get-AzureRMAutomationAccount -ResourceGroupName "ContosoDev-Test$env:BuildID" `
+        -Name "AzureDSC$env:BuildID"
         $RegistrationInfo = $Account | Get-AzureRmAutomationRegistrationInfo
         $registrationUrl = $RegistrationInfo.Endpoint
         $registrationKey = $RegistrationInfo.PrimaryKey | ConvertTo-SecureString -AsPlainText `
@@ -401,7 +401,7 @@ function New-AzureTestVM
         # Build hashtable of deployment parameters
         $DeploymentParameters = @{
             Name = $vmName
-            ResourceGroupName = "TestAutomation$env:BuildID"
+            ResourceGroupName = "ContosoDev-Test$env:BuildID"
             TemplateFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.json"
             TemplateParameterFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.parameters.json"
             dnsLabelPrefix = $dnsLabelPrefix
@@ -422,7 +422,7 @@ function New-AzureTestVM
         $AzureVm = New-AzureRMResourceGroupDeployment @DeploymentParameters
 
         # Get deployment details
-        $Status = Get-AzureRMResourceGroupDeployment -ResourceGroupName "TestAutomation$env:BuildID" `
+        $Status = Get-AzureRMResourceGroupDeployment -ResourceGroupName "ContosoDev-Test$env:BuildID" `
         -Name $vmName
 
         # Write output to build log
@@ -431,7 +431,7 @@ function New-AzureTestVM
         }
         else {
             Write-Output $AzureVm
-            $Error = Get-AzureRMResourceGroupDeploymentOperation -ResourceGroupName "TestAutomation$env:BuildID" `
+            $Error = Get-AzureRMResourceGroupDeploymentOperation -ResourceGroupName "ContosoDev-Test$env:BuildID" `
             -Name $vmName
             $Message = $Error.Properties | Where-Object {$_.ProvisioningState -eq 'Failed'} | `
             ForEach-Object {$_.StatusMessage} | ForEach-Object {$_.Error} | `
@@ -454,8 +454,8 @@ function Wait-NodeCompliance
     [CmdletBinding()]     
     param
     (
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID,
-        [string]$AutomationAccountName = 'AADSC'+$env:BuildID
+        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
