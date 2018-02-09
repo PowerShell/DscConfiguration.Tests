@@ -367,15 +367,14 @@ Describe 'Common Tests - Configuration Module Requirements' -Tag Unit {
 #>
 Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
 
-    $ResourceGroup = "TestAutomation$env:BuildID"
-    $AutomationAccount = "AADSC$env:BuildID"
+    $ResourceGroup = "ContosoDev-Test$env:BuildID"
+    $AutomationAccount = "AzureDSC$env:BuildID"
 
-    $env:ProjectName = $env:ProjectName+'Module'
-    $CurrentModuleManifest = Get-ChildItem -Path $env:BuildFolder\$env:ProjectName -Filter "$env:ProjectName.psd1" | ForEach-Object {$_.FullName}
-    $RequiredModules = Get-RequiredGalleryModules (Import-PowerShellDataFile $CurrentModuleManifest)
+    $ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1"
+    $RequiredModules = $ScriptFileInfo.RequiredModules
 
     . $env:BuildFolder\$env:ProjectName.ps1
-    $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Source -eq ''} | ForEach-Object {$_.Name}
+    $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Name -eq $env:ProjectName} | ForEach-Object {$_.Name}
 
     # Get AADSC Modules
     $AADSCModules = Get-AzureRmAutomationModule -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount
