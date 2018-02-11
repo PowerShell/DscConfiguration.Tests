@@ -5,10 +5,10 @@
     any build service and achieve the same outcome.
 
     Goals:
-        - Verify the configuration module and configurations meet basic requirements using Pester
+        - Verify the configuration module and Configuration meet basic requirements using Pester
           and PSScriptAnalyzer.
-        - Deploy the configurations and any required modules to Azure Automation using AzureRM
-        - Verify the configurations compile successfully in Azure Automation using Pester
+        - Deploy the Configuration and any required modules to Azure Automation using AzureRM
+        - Verify the Configuration compile successfully in Azure Automation using Pester
         - Deploy Azure VM instance(s) and apply configuration using AzureRM
         - Verify the server is configured as expected
 
@@ -60,14 +60,14 @@ Enter-Build {
 <#
 .Synopsis: Load the Configuration script
 #>
-Add-BuildTask LoadConfigurationScript {
-    # Prep and import Configurations
-    $script:Configurations = Invoke-ConfigurationPrep
-    Write-Output "Loaded configurations:`n$($script:Configurations | ForEach-Object -Process `
+Add-BuildTask LoadConfigurationcript {
+    # Prep and import Configuration
+    $script:Configuration = Invoke-ConfigurationPrep
+    Write-Output "Loaded Configuration:`n$($script:Configuration | ForEach-Object -Process `
         {$_.Name})"
-    Write-Output "Supported operating systems:`n$($script:Configurations | ForEach-Object -Process `
+    Write-Output "Supported operating systems:`n$($script:Configuration | ForEach-Object -Process `
         {$_.OSVersions})"
-    Write-Output "Required Modules:`n$($script:Configurations | ForEach-Object -Process `
+    Write-Output "Required Modules:`n$($script:Configuration | ForEach-Object -Process `
         {$_.RequiredModules})"
 }
 
@@ -114,7 +114,7 @@ Add-BuildTask AzureAutomationAssets {
     $Script:AzureAutomationJob = Start-Job -ScriptBlock {
         param (
             $Modules,
-            $Configurations
+            $Configuration
         )
         Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
         Invoke-AzureSPNLogin
@@ -128,15 +128,15 @@ Add-BuildTask AzureAutomationAssets {
             Wait-ModuleExtraction -Module $WaitForModule
         }
 
-        # Import and compile the Configurations using Azure Automation (TestHelper)
-        foreach ($ImportConfiguration in $Configurations) {
+        # Import and compile the Configuration using Azure Automation (TestHelper)
+        foreach ($ImportConfiguration in $Configuration) {
             Import-ConfigurationToAzureAutomation -Configuration $ImportConfiguration
         }
-        # Wait for Configurations to compile
-        foreach ($WaitForConfiguration in $Configurations) {
+        # Wait for Configuration to compile
+        foreach ($WaitForConfiguration in $Configuration) {
             Wait-ConfigurationCompilation -Configuration $WaitForConfiguration
         }
-    } -ArgumentList @($Script:Modules, $Script:Configurations)
+    } -ArgumentList @($Script:Configuration.RequiredModules, $Script:Configuration)
 }
 
 <#
@@ -146,39 +146,37 @@ Add-BuildTask AzureVM {
     $Script:VMDeployments = @()
     Write-Output 'Deploying all test virtual machines in parallel'
     
-    ForEach ($Configuration in $script:Configurations) {
-        ForEach ($WindowsOSVersion in $Configuration.WindowsOSVersion) {
-        
-            If ($null -eq $WindowsOSVersion) {
-                Write-Output "No OS version was provided for deployment of $($Configuration.Name)"
-            }
-            Write-Output "Initiating background deployment of $WindowsOSVersion and bootstrapping configuration $($Configuration.Name)"
-        
-            $JobName = "$($Configuration.Name).$($WindowsOSVersion.replace('-',''))"
-        
-            $Script:VMDeployment = Start-Job -ScriptBlock {
-                param
-                (
-                    [string]$Configuration,
-                    [string]$WindowsOSVersion
-                )
-                Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
-            
-                Invoke-AzureSPNLogin
-            
-                New-AzureTestVM -Configuration $Configuration -WindowsOSVersion $WindowsOSVersion
-
-            } -ArgumentList @($Configuration.Name, $WindowsOSVersion) -Name $JobName
-            $Script:VMDeployments += $Script:VMDeployment
-
-            # pause for provisioning to avoid conflicts (this is a case where slower is faster)
-            Start-Sleep 15
+    ForEach ($OSVersion in $Configuration.OSVersion) {
+    
+        If ($null -eq $OSVersion) {
+            Write-Output "No OS version was provided for deployment of $($Configuration.Name)"
         }
+        Write-Output "Initiating background deployment of $OSVersion and bootstrapping configuration $($Configuration.Name)"
+    
+        $JobName = "$($Configuration.Name).$($OSVersion.replace('-',''))"
+    
+        $Script:VMDeployment = Start-Job -ScriptBlock {
+            param
+            (
+                [string]$Configuration,
+                [string]$OSVersion
+            )
+            Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
+        
+            Invoke-AzureSPNLogin
+        
+            New-AzureTestVM -Configuration $Configuration -WindowsOSVersion $OSVersion
+
+        } -ArgumentList @($Configuration.Name, $OSVersion) -Name $JobName
+        $Script:VMDeployments += $Script:VMDeployment
+
+        # pause for provisioning to avoid conflicts (this is a case where slower is faster)
+        Start-Sleep 15
     }
 }
 
 <#
-.Synopsis: Integration tests to verify that modules and configurations loaded to Azure Automation DSC successfully
+.Synopsis: Integration tests to verify that modules and Configuration loaded to Azure Automation DSC successfully
 #>
 Add-BuildTask IntegrationTestAzureAutomationDSC {
     Write-Host "Waiting for Azure Automation module extraction and configuration compile jobs actions to finish"
