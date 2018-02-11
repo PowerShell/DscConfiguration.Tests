@@ -113,6 +113,8 @@ Add-BuildTask ResourceGroupAndAutomationAccount {
 #>
 Add-BuildTask AzureAutomationAssets {
     Write-Output "Starting background task to load assets to Azure Automation"
+    Write-Output "Loading Modules: $script:Modules"
+    Write-Output "Loading Configuration: $script:Configuration"
     $Script:AzureAutomationJob = Start-Job -ScriptBlock {
         param (
             $Modules,
@@ -138,7 +140,7 @@ Add-BuildTask AzureAutomationAssets {
         foreach ($WaitForConfiguration in $Configuration) {
             Wait-ConfigurationCompilation -Configuration $WaitForConfiguration
         }
-    } -ArgumentList @($script:Modules, $Script:Configuration)
+    } -ArgumentList @($script:Modules, $script:Configuration)
 }
 
 <#
