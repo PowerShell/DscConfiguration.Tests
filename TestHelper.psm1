@@ -27,6 +27,89 @@ function Invoke-UniquePSModulePath
     }
 }
 
+
+<#
+    .SYNOPSIS
+
+#>
+function Get-RequiredGalleryModules
+{
+    [CmdletBinding()]
+    [OutputType([System.Object[]])]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string[]]$RequiredModules,
+        [switch]$Install
+    )
+    try {
+        # Load module data and create array of objects containing prerequisite details for use 
+        # later in Azure Automation
+        $ModulesInformation = @()
+        foreach($RequiredModule in $RequiredModules)
+        {
+            # Placeholder object to store module names and locations
+            $ModuleReference = New-Object -TypeName PSObject
+            
+            # If no version is given, get the latest version
+            if ($RequiredModule.gettype().Name -eq 'String')
+            {
+                if ($galleryReference = Invoke-RestMethod -Method Get `
+                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$RequiredModule'" `
+                -ErrorAction Continue)
+                {
+                    Write-Verbose "Identified module $RequiredModule in the PowerShell Gallery"
+                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
+                    -Value $RequiredModule
+                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `
+                    -Value ($galleryReference | Where-Object {$_.Properties.IsLatestVersion.'#text' `
+                    -eq $true}).content.src
+                    $ModulesInformation += $ModuleReference
+                }
+                else {
+                    throw "The module $RequiredModule was not found in the gallery"
+                }
+                if ($Install -eq $true)
+                {
+                    Write-Verbose "Installing module: $RequiredModule"
+                    Install-Module -Name $RequiredModule -force
+                }
+            }
+
+            # If a version is given, get it specifically
+            if ($RequiredModule.gettype().Name -eq 'Hashtable')
+            {
+                if ($galleryReference = Invoke-RestMethod -Method Get `
+                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.ModuleName)'" `
+                -ErrorAction Continue)
+                {
+                    Write-Verbose "Identified module $($RequiredModule.ModuleName) in the PowerShell Gallery"
+                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
+                    -Value $RequiredModule.ModuleName
+                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `
+                    -Value ($galleryReference | Where-Object {$_.Properties.Version `
+                    -eq $RequiredModule.ModuleVersion}).content.src
+                    $ModulesInformation += $ModuleReference
+                }
+                else {
+                    throw "The module $($RequiredModule.ModuleName) was not found in the gallery"
+                }
+                if ($Install -eq $true)
+                {
+                    Write-Verbose "Installing module: $($RequiredModule.ModuleName) version $($RequiredModule.ModuleVersion)"
+                    Install-Module -Name $RequiredModule.ModuleName `
+                    -RequiredVersion $RequiredModule.ModuleVersion -force
+                }
+            }
+        }
+        return $ModulesInformation    
+    }
+    catch [System.Exception] 
+    {
+        throw "An error occured while getting modules from PowerShellGallery.com`n$($_.exception.message)"
+    }
+}
+
+
 <#
     .SYNOPSIS
 
