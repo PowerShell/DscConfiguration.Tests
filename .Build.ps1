@@ -63,12 +63,14 @@ Enter-Build {
 Add-BuildTask LoadConfigurationScript {
     # Prep and import Configuration
     $script:Configuration = Invoke-ConfigurationPrep
+    $script:Modules = $($script:Configuration | ForEach-Object -Process `
+    {$_.RequiredModules})
+
     Write-Output "Loaded Configuration:`n$($script:Configuration | ForEach-Object -Process `
         {$_.Name})"
     Write-Output "Supported operating systems:`n$($script:Configuration | ForEach-Object -Process `
         {$_.OSVersions})"
-    Write-Output "Required Modules:`n$($script:Configuration | ForEach-Object -Process `
-        {$_.RequiredModules})"
+    Write-Output "Required Modules:`n$script:Modules"
 }
 
 <#
@@ -136,7 +138,7 @@ Add-BuildTask AzureAutomationAssets {
         foreach ($WaitForConfiguration in $Configuration) {
             Wait-ConfigurationCompilation -Configuration $WaitForConfiguration
         }
-    } -ArgumentList @($Script:Configuration.RequiredModules, $Script:Configuration)
+    } -ArgumentList @($script:Modules, $Script:Configuration)
 }
 
 <#
