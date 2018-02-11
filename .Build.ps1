@@ -68,12 +68,14 @@ Add-BuildTask LoadConfigurationScript {
         {$_.Name})"
     Write-Output "Supported operating systems:`n$($script:Configuration | ForEach-Object -Process `
         {$_.OSVersions})"
-    Write-Output "Required Modules:`n$script:Modules"
 
     # This was moved from another build task used when configurations were stored in modules
     # and ideally should be a new seperate build task
     $script:Modules = Get-RequiredGalleryModules $($script:Configuration | ForEach-Object -Process `
     {$_.RequiredModules})
+
+    Write-Output "Required Modules:`n$($script:Modules | ForEach-Object -Process {$_.Name})"
+    
 }
 
 <#
@@ -116,8 +118,9 @@ Add-BuildTask ResourceGroupAndAutomationAccount {
 #>
 Add-BuildTask AzureAutomationAssets {
     Write-Output "Starting background task to load assets to Azure Automation"
-    Write-Output "Loading Modules: $script:Modules"
-    Write-Output "Loading Configuration: $script:Configuration"
+    Write-Output "Loading Modules: $($script:Modules | ForEach-Object -Process {$_.Name})"
+    Write-Output "Loading Configuration: $($script:Configuration | ForEach-Object -Process `
+    {$_.Name})"
     $Script:AzureAutomationJob = Start-Job -ScriptBlock {
         param (
             $Modules,
