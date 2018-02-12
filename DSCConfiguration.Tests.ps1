@@ -379,6 +379,7 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
     # Get AADSC Modules
     $AADSCModules = Get-AzureRmAutomationModule -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount
     $AADSCModuleNames = $AADSCModules | ForEach-Object {$_.Name}
+    Write-Output "AzureDSC contains $AADSCModuleNames"
 
     # Get AADSC Configurations
     $AADSCConfigurations = Get-AzureRmAutomationDscConfiguration -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount
@@ -386,8 +387,8 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
 
     Context "Modules" {
         ForEach ($RequiredModule in $RequiredModules) {
-            It "$RequiredModule should be present in $AADSCModuleNames" {
-                $AADSCModuleNames.Contains("$RequiredModule") | Should Be True
+            It "$RequiredModule should be present in AzureDSC" {
+                $AADSCModuleNames.Contains($RequiredModule) | Should Be True
             }
         }
     }
