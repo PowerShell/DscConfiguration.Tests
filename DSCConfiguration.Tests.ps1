@@ -407,13 +407,12 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
 #>
 Describe 'Common Tests - Azure VM' -Tag AzureVMIntegration {
 
-    $ResourceGroup = "ContosoDev0Test-$env:BuildID"
+    $ResourceGroup = "ContosoDev-Test$env:BuildID"
     $AutomationAccount = "AzureDSC$env:BuildID"
 
     . $env:BuildFolder\$env:ProjectName.ps1
     $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Source -eq ''} | ForEach-Object {$_.Name}
 
-    $env:ProjectName = -join ($env:ProjectName,'Module')
     $OSVersion = (Import-PowerShellDataFile $env:BuildFolder\$env:ProjectName.ps1).PrivateData
 
     $Nodes = Get-AzureRMAutomationDSCNode -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount

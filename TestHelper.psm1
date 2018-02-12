@@ -458,8 +458,8 @@ function New-AzureTestVM
     (
         [Parameter(Mandatory=$true)]
         [string]$Configuration,
-        [Parameter(Mandatory=$true)]        
-        [string]$WindowsOSVersion
+        [Parameter(Mandatory=$true)]
+        [string]$OSVersion
     )
     try 
     {
@@ -479,7 +479,7 @@ function New-AzureTestVM
         $dnsLabelPrefix = "test$(Get-Random -Minimum 1000 -Maximum 9999)"
 
         # VM Name based on configuration name and OS name
-        $vmName = "$Configuration.$($WindowsOSVersion.replace('-',''))"
+        $vmName = "$Configuration.$($OSVersion.replace('-',''))"
 
         # Build hashtable of deployment parameters
         $DeploymentParameters = @{
@@ -489,12 +489,12 @@ function New-AzureTestVM
             TemplateParameterFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.parameters.json"
             dnsLabelPrefix = $dnsLabelPrefix
             vmName = $vmName
-            storageAccountName = "sa$($WindowsOSVersion.replace('-','').ToLower())"
-            nicName = "nic$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            publicIPAddressName = "pip$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            virtualNetworkName = "net$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            nsgName = "nsg$Configuration$env:BuildID$($WindowsOSVersion.replace('-','').ToLower())"
-            WindowsOSVersion = $WindowsOSVersion
+            storageAccountName = "sa$($OSVersion.replace('-','').ToLower())"
+            nicName = "nic$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            publicIPAddressName = "pip$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            virtualNetworkName = "net$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            nsgName = "nsg$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            OSVersion = $OSVersion
             adminPassword = $adminPassword
             registrationUrl = $registrationUrl
             registrationKey = $registrationKey
