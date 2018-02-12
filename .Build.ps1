@@ -176,7 +176,7 @@ Add-BuildTask AzureVM {
         
             Invoke-AzureSPNLogin
         
-            New-AzureTestVM -Configuration $Configuration -WindowsOSVersion $OSVersion
+            New-AzureTestVM -Configuration $Configuration -OSVersion $OSVersion
 
         } -ArgumentList @($Script:Configuration.Name, $OSVersion) -Name $JobName
         $Script:VMDeployments += $Script:VMDeployment
