@@ -386,8 +386,8 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
 
     Context "Modules" {
         ForEach ($RequiredModule in $RequiredModules) {
-            It "$($RequiredModule) should be present in AADSC" {
-                $AADSCModuleNames.Contains("$($RequiredModule)") | Should Be True
+            It "$RequiredModule should be present in $AADSCModuleNames" {
+                $AADSCModuleNames.Contains("$RequiredModule") | Should Be True
             }
         }
     }
