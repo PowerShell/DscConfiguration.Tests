@@ -164,24 +164,28 @@ Add-BuildTask AzureVM {
         Write-Output "Initiating background deployment of $OSVersion and bootstrapping configuration $($Configuration.Name)"
     
         $JobName = "$($Configuration.Name).$($OSVersion.replace('-',''))"
-    
+    Write-Host "Starting job $JobName"
+        <#
         $Script:VMDeployment = Start-Job -ScriptBlock {
             param
             (
                 [string]$Configuration,
                 [string]$OSVersion
             )
+            #>
             Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
         
             Invoke-AzureSPNLogin
         
             New-AzureTestVM -Configuration $Configuration -WindowsOSVersion $OSVersion
 
+            <#
         } -ArgumentList @($Configuration.Name, $OSVersion) -Name $JobName
         $Script:VMDeployments += $Script:VMDeployment
 
         # pause for provisioning to avoid conflicts (this is a case where slower is faster)
         Start-Sleep 15
+        #>
     }
 }
 
