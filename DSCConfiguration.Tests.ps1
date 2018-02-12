@@ -386,7 +386,7 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
 
     Context "Modules" {
         ForEach ($RequiredModule in $RequiredModules.split(',')) {
-            It "$RequiredModule should be present in $AADSCModuleNames" {
+            It "$RequiredModule should be present in AzureDSC" {
                 $AADSCModuleNames.Contains($RequiredModule) | Should Be True
             }
         }
@@ -413,7 +413,7 @@ Describe 'Common Tests - Azure VM' -Tag AzureVMIntegration {
     . $env:BuildFolder\$env:ProjectName.ps1
     $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Source -eq ''} | ForEach-Object {$_.Name}
 
-    $OSVersion = (Import-PowerShellDataFile $env:BuildFolder\$env:ProjectName.ps1).PrivateData
+    $OSVersion = (Test-ScriptFileInfo $env:BuildFolder\$env:ProjectName.ps1).PrivateData
 
     $Nodes = Get-AzureRMAutomationDSCNode -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount
     $NodeNames = $Nodes | ForEach-Object {$_.Name}
