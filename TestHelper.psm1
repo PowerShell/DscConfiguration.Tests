@@ -567,7 +567,7 @@ function Remove-AzureTestResources
     [CmdletBinding()]
     param
     (
-        [string]$ResourceGroupName = 'TestAutomation'+$env:BuildID
+        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID
     )
     try {
         $Remove = Remove-AzureRmResourceGroup -Name $ResourceGroupName -Force
