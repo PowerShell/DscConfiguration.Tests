@@ -494,7 +494,7 @@ function New-AzureTestVM
             publicIPAddressName = "pip$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
             virtualNetworkName = "net$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
             nsgName = "nsg$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
-            OSVersion = $OSVersion
+            WindowsOSVersion = $OSVersion
             adminPassword = $adminPassword
             registrationUrl = $registrationUrl
             registrationKey = $registrationKey
