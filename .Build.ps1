@@ -156,7 +156,7 @@ Add-BuildTask AzureVM {
     $Script:VMDeployments = @()
     Write-Output 'Deploying all test virtual machines in parallel'
     
-    ForEach ($OSVersion in $Configuration.OSVersion) {
+    ForEach ($OSVersion in $Configuration.PrivateData) {
     
         If ($null -eq $OSVersion) {
             Write-Output "No OS version was provided for deployment of $($Configuration.Name)"
