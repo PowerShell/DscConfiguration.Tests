@@ -139,13 +139,10 @@ Add-BuildTask AzureAutomationAssets {
         }
 
         # Import and compile the Configuration using Azure Automation (TestHelper)
-        foreach ($ImportConfiguration in $Configuration) {
-            Import-ConfigurationToAzureAutomation -Configuration $ImportConfiguration
-        }
-        # Wait for Configuration to compile
-        foreach ($WaitForConfiguration in $Configuration) {
-            Wait-ConfigurationCompilation -Configuration $WaitForConfiguration
-        }
+            Import-ConfigurationToAzureAutomation -Configuration $Configuration
+
+            # Wait for Configuration to compile
+            Wait-ConfigurationCompilation -Configuration $Configuration
     } -ArgumentList @($script:Modules, $script:Configuration)
 }
 
@@ -176,7 +173,7 @@ Add-BuildTask AzureVM {
         
             Invoke-AzureSPNLogin
         
-            New-AzureTestVM -Configuration $Configuration -OSVersion $OSVersion
+            New-AzureTestVM -OSVersion $OSVersion
 
         } -ArgumentList @($Script:Configuration.Name, $OSVersion) -Name $JobName
         $Script:VMDeployments += $Script:VMDeployment
