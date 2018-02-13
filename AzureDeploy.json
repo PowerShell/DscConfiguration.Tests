@@ -95,9 +95,7 @@
     "addressPrefix": "10.0.0.0/16",
     "subnetName": "subnet",
     "subnetPrefix": "10.0.0.0/24",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('subnetName'))]",
-    "modulesUrl": "https://github.com/Microsoft/DSCConfiguration.Tests/raw/master/RegistrationMetaConfigV2.zip",
-    "configurationFunction": "RegistrationMetaConfigV2.ps1\\RegistrationMetaConfigV2"
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('subnetName'))]"
   },
   "resources": [
     {
@@ -296,7 +294,7 @@
         "properties": {
             "publisher": "Microsoft.Powershell",
             "type": "DSC",
-            "typeHandlerVersion": "2.19",
+            "typeHandlerVersion": "2.72",
             "autoUpgradeMinorVersion": true,
             "protectedSettings": {
                 "Items": {
@@ -304,9 +302,6 @@
                 }
             },
             "settings": {
-                "ModulesUrl": "[variables('modulesUrl')]",
-                "SasToken": "",
-                "ConfigurationFunction": "[variables('configurationFunction')]",
                 "Properties": [
                     {
                         "Name": "RegistrationKey",
