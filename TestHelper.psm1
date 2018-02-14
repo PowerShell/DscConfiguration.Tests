@@ -207,7 +207,7 @@ function New-ResourceGroupandAutomationAccount
         [string]$TenantID = $env:TenantID,
         [string]$Location = $env:Location,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$AutomationAccountName = 'AzureDSC'
     )
     try 
     {
@@ -269,7 +269,7 @@ function Import-ModuleToAzureAutomation
         [Parameter(Mandatory=$true)]
         [array]$Module,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$AutomationAccountName = 'AzureDSC'
     )
     try
     {
@@ -302,7 +302,7 @@ function Wait-ModuleExtraction
         [Parameter(Mandatory=$true)]
         [array]$Module,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$AutomationAccountName = 'AzureDSC'
     )
     try
     {
@@ -331,7 +331,7 @@ function Import-ConfigurationToAzureAutomation
         [Parameter(Mandatory=$true)]
         [array]$Configuration,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$AutomationAccountName = 'AzureDSC'
     )
     try 
     {
@@ -382,7 +382,7 @@ function Wait-ConfigurationCompilation
         [Parameter(Mandatory=$true)]
         [array]$Configuration,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$AutomationAccountName = 'AzureDSC'
     )
     try 
     {
@@ -536,7 +536,7 @@ function Wait-NodeCompliance
     param
     (
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$AutomationAccountName = 'AzureDSC'
     )
     try 
     {
