@@ -368,7 +368,7 @@ Describe 'Common Tests - Configuration Module Requirements' -Tag Unit {
 Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
 
     $ResourceGroup = "ContosoDev-Test$env:BuildID"
-    $AutomationAccount = "AzureDSC$env:BuildID"
+    $AutomationAccount = "AzureDSC"
 
     $ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1"
     $RequiredModules = $ScriptFileInfo.RequiredModules
@@ -408,7 +408,7 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
 Describe 'Common Tests - Azure VM' -Tag AzureVMIntegration {
 
     $ResourceGroup = "ContosoDev-Test$env:BuildID"
-    $AutomationAccount = "AzureDSC$env:BuildID"
+    $AutomationAccount = "AzureDSC"
 
     . $env:BuildFolder\$env:ProjectName.ps1
     $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Source -eq ''} | ForEach-Object {$_.Name}
