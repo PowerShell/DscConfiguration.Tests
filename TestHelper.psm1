@@ -207,7 +207,7 @@ function New-ResourceGroupandAutomationAccount
         [string]$TenantID = $env:TenantID,
         [string]$Location = $env:Location,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
@@ -277,7 +277,7 @@ function Import-ModuleToAzureAutomation
         [Parameter(Mandatory=$true)]
         [array]$Module,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try
     {
@@ -310,7 +310,7 @@ function Wait-ModuleExtraction
         [Parameter(Mandatory=$true)]
         [array]$Module,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try
     {
@@ -339,7 +339,7 @@ function Import-ConfigurationToAzureAutomation
         [Parameter(Mandatory=$true)]
         [array]$Configuration,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
@@ -390,7 +390,7 @@ function Wait-ConfigurationCompilation
         [Parameter(Mandatory=$true)]
         [array]$Configuration,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
@@ -473,7 +473,7 @@ function New-AzureTestVM
     {
         # Retrieve Azure Automation DSC registration information
         $Account = Get-AzureRMAutomationAccount -ResourceGroupName "ContosoDev-Test$env:BuildID" `
-        -Name 'AzureDSC'
+        -Name 'AzureDSC'+$env:BuildID
         $RegistrationInfo = $Account | Get-AzureRmAutomationRegistrationInfo
         $registrationUrl = $RegistrationInfo.Endpoint
         $registrationKey = $RegistrationInfo.PrimaryKey | ConvertTo-SecureString -AsPlainText `
@@ -546,7 +546,7 @@ function Wait-NodeCompliance
     param
     (
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'
+        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
