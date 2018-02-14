@@ -6,22 +6,22 @@
       "value": "[concat(uniquestring(resourceGroup().id)]"
     },
     "vmName": {
-      "value": "[concat(uniquestring(resourceGroup().id), 'vm')]"
+      "value": "vm"
     },
     "storageAccountName": {
       "value": "[concat( uniquestring(resourceGroup().id, 'sa')]"
     },
     "nicName": {
-      "value": "[concat( uniquestring(resourceGroup().id, 'nic')]"
+      "value": "nic"
     },
     "publicIPAddressName": {
-      "value": "[concat( uniquestring(resourceGroup().id, 'pip')]"
+      "value": "pip"
     },
     "virtualNetworkName": {
-      "value": "[concat( uniquestring(resourceGroup().id, 'net')]"
+      "value": "net"
     },
     "nsgName": {
-      "value": "[concat( uniquestring(resourceGroup().id, 'nsg')]"
+      "value": "nsg"
     },
     "adminUsername": {
       "value": "dscAdmin"
