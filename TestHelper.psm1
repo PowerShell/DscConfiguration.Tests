@@ -252,7 +252,7 @@ function New-ResourceGroupandAutomationAccount
             throw "Automation account $AutomationAccountName could not be validated"
         }
 
-        $username = 'dscAdmin'
+        $username = 'dsc'
         $password = New-RandomPassword
         $Credential = new-object -typename System.Management.Automation.PSCredential `
          -argumentlist $username, $password
