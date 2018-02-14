@@ -141,10 +141,10 @@ Add-BuildTask AzureAutomationAssets {
         $script:Configuration = $Configuration
         
         # Import and compile the Configuration using Azure Automation (TestHelper)
-            Import-ConfigurationToAzureAutomation
+        Import-ConfigurationToAzureAutomation
 
-            # Wait for Configuration to compile
-            Wait-ConfigurationCompilation
+        # Wait for Configuration to compile
+        Wait-ConfigurationCompilation
     } -ArgumentList @($script:Modules, $script:Configuration)
 }
 
