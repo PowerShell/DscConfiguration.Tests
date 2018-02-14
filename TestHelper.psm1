@@ -251,6 +251,14 @@ function New-ResourceGroupandAutomationAccount
         If ($Null -eq $AutomationAccountExists) {
             throw "Automation account $AutomationAccountName could not be validated"
         }
+
+        $username = 'dscAdmin'
+        $password = New-RandomPassword
+        $Credential = new-object -typename System.Management.Automation.PSCredential `
+         -argumentlist $username, $password
+        $CredentialAsset = New-AzureRmAutomationCredential -Name 'Credential' `
+            -Value $Credential -ResourceGroupName $ResourceGroupName `
+            -AutomationAccountName $AutomationAccountName
     }
     catch [System.Exception] {
         throw "An error occured while creating or validating Azure resources`n$($_.exception.message)"
