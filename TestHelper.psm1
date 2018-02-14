@@ -477,7 +477,7 @@ function New-AzureTestVM
         $dnsLabelPrefix = "test$(Get-Random -Minimum 1000 -Maximum 9999)"
 
         # VM Name based on configuration name and OS name
-        $vmName = "$Script:Configuration.$($OSVersion.replace('-',''))"
+        $vmName = "$($Script:Configuration.Name).$($OSVersion.replace('-',''))"
 
         # Build hashtable of deployment parameters
         $DeploymentParameters = @{
