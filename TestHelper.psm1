@@ -457,13 +457,15 @@ function New-AzureTestVM
     param
     (
         [Parameter(Mandatory=$true)]
+        [string]$Configuration,
+        [Parameter(Mandatory=$true)]
         [string]$OSVersion
     )
     try 
     {
         # Retrieve Azure Automation DSC registration information
         $Account = Get-AzureRMAutomationAccount -ResourceGroupName "ContosoDev-Test$env:BuildID" `
-        -Name "AzureDSC$env:BuildID"
+        -Name 'AzureDSC'
         $RegistrationInfo = $Account | Get-AzureRmAutomationRegistrationInfo
         $registrationUrl = $RegistrationInfo.Endpoint
         $registrationKey = $RegistrationInfo.PrimaryKey | ConvertTo-SecureString -AsPlainText `
@@ -477,7 +479,7 @@ function New-AzureTestVM
         $dnsLabelPrefix = "test$(Get-Random -Minimum 1000 -Maximum 9999)"
 
         # VM Name based on configuration name and OS name
-        $vmName = "$($Script:Configuration.Name).$($OSVersion.replace('-',''))"
+        $vmName = "$($Configuration.Name).$($OSVersion.replace('-',''))"
 
         # Build hashtable of deployment parameters
         $DeploymentParameters = @{
@@ -488,15 +490,15 @@ function New-AzureTestVM
             dnsLabelPrefix = $dnsLabelPrefix
             vmName = $vmName
             storageAccountName = "sa$($OSVersion.replace('-','').ToLower())"
-            nicName = "nic$script:Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
-            publicIPAddressName = "pip$script:Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
-            virtualNetworkName = "net$script:Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
-            nsgName = "nsg$script:Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            nicName = "nic$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            publicIPAddressName = "pip$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            virtualNetworkName = "net$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            nsgName = "nsg$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
             WindowsOSVersion = $OSVersion
             adminPassword = $adminPassword
             registrationUrl = $registrationUrl
             registrationKey = $registrationKey
-            nodeConfigurationName = "$($script:Configuration.Name).localhost"
+            nodeConfigurationName = "$($Configuration.Name).localhost"
         }
 
         # Deploy ARM template
