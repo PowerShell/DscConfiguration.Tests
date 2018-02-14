@@ -253,7 +253,7 @@ function New-ResourceGroupandAutomationAccount
         }
 
         $username = 'dsc'
-        $password = New-RandomPassword
+        $password = New-RandomPassword | ConvertTo-SecureString -AsPlainText -Force
         $Credential = new-object -typename System.Management.Automation.PSCredential `
          -argumentlist $username, $password
         $CredentialAsset = New-AzureRmAutomationCredential -Name 'Credential' `
