@@ -498,7 +498,7 @@ function New-AzureTestVM
             adminPassword = $adminPassword
             registrationUrl = $registrationUrl
             registrationKey = $registrationKey
-            nodeConfigurationName = "$($Configuration.Name).localhost"
+            nodeConfigurationName = "$Configuration.localhost"
         }
 
         # Deploy ARM template
