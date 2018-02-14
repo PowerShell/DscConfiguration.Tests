@@ -325,46 +325,48 @@ function Wait-ModuleExtraction
 #>
 function Import-ConfigurationToAzureAutomation
 {
-    [CmdletBinding()]     
+    [CmdletBinding()]
     param
-    (
+    (   
+        [Parameter(Mandatory=$true)]
+        [array]$Configuration,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
         [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
-        Write-Output "Importing configuration $($script:Configuration.Name) to Azure Automation"
+        Write-Output "Importing configuration $($Configuration.Name) to Azure Automation"
         # Import Configuration to Azure Automation DSC
         $ConfigurationImport = Import-AzureRmAutomationDscConfiguration `
         -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName `
-        -SourcePath $script:Configuration.Location -Published -Force
+        -SourcePath $Configuration.Location -Published -Force
 
         # Validate configuration was imported
         $ConfigurationImportExists = Get-AzureRmAutomationDscConfiguration `
         -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName `
-        -Name $script:Configuration.Name
+        -Name $Configuration.Name
         if ($Null -eq $ConfigurationImportExists) {
-            throw "The configuration $($script:Configuration.Name) could not be validated"
+            throw "The configuration $($Configuration.Name) could not be validated"
         }
 
         # Load configdata if it exists
-        if (Test-Path "$env:BuildFolder\ConfigurationData\$($script:Configuration.Name).ConfigData.psd1") {
+        if (Test-Path "$env:BuildFolder\ConfigurationData\$($Configuration.Name).ConfigData.psd1") {
             $ConfigurationData = Import-PowerShellDataFile `
-                "$env:BuildFolder\ConfigurationData\$($script:Configuration.Name).ConfigData.psd1"
+                "$env:BuildFolder\ConfigurationData\$($Configuration.Name).ConfigData.psd1"
         }
 
         # Splate params to compile in Azure Automation DSC
         $CompileParams = @{
         ResourceGroupName     = $ResourceGroupName
         AutomationAccountName = $AutomationAccountName
-        ConfigurationName     = $script:Configuration.Name
+        ConfigurationName     = $Configuration.Name
         ConfigurationData     = $ConfigurationData
     }
         $Compile = Start-AzureRmAutomationDscCompilationJob @CompileParams
     }
     catch [System.Exception] 
     {
-        throw "An error occured while importing the configuration $($script:Configuration.Name) using Azure Automation`n$($_.exception.message)"        
+        throw "An error occured while importing the configuration $(Configuration.Name) using Azure Automation`n$($_.exception.message)"        
     }
 }
 
@@ -377,19 +379,21 @@ function Wait-ConfigurationCompilation
     [CmdletBinding()]     
     param
     (
+        [Parameter(Mandatory=$true)]
+        [array]$Configuration,
         [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
         [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
     )
     try 
     {
         while (@('Completed','Suspended') -notcontains (Get-AzureRmAutomationDscCompilationJob -ResourceGroupName $ResourceGroupName `
-        -AutomationAccountName $AutomationAccountName -Name $script:Configuration.Name).Status) {
+        -AutomationAccountName $AutomationAccountName -Name $Configuration.Name).Status) {
             Start-Sleep -Seconds 15
         }   
     }
     catch [System.Exception] 
     {
-        throw "An error occured while waiting for configuration $($script:Configuration.Name) to compile in Azure Automation`n$($_.exception.message)"        
+        throw "An error occured while waiting for configuration $($Configuration.Name) to compile in Azure Automation`n$($_.exception.message)"        
     }
 }
 
