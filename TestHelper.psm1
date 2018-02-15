@@ -206,8 +206,8 @@ function New-ResourceGroupandAutomationAccount
         [string]$SubscriptionID = $env:SubscriptionID,
         [string]$TenantID = $env:TenantID,
         [string]$Location = $env:Location,
-        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID",
+        [string]$AutomationAccountName = "AzureDSC$env:BuildID"
     )
     try 
     {
@@ -276,8 +276,8 @@ function Import-ModuleToAzureAutomation
     (
         [Parameter(Mandatory=$true)]
         [array]$Module,
-        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID",
+        [string]$AutomationAccountName = "AzureDSC$env:BuildID"
     )
     try
     {
@@ -309,8 +309,8 @@ function Wait-ModuleExtraction
     (
         [Parameter(Mandatory=$true)]
         [array]$Module,
-        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID",
+        [string]$AutomationAccountName = "AzureDSC$env:BuildID"
     )
     try
     {
@@ -338,8 +338,8 @@ function Import-ConfigurationToAzureAutomation
     (   
         [Parameter(Mandatory=$true)]
         [array]$Configuration,
-        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID",
+        [string]$AutomationAccountName = "AzureDSC$env:BuildID"
     )
     try 
     {
@@ -389,8 +389,8 @@ function Wait-ConfigurationCompilation
     (
         [Parameter(Mandatory=$true)]
         [array]$Configuration,
-        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID",
+        [string]$AutomationAccountName = "AzureDSC$env:BuildID"
     )
     try 
     {
@@ -473,7 +473,7 @@ function New-AzureTestVM
     {
         # Retrieve Azure Automation DSC registration information
         $Account = Get-AzureRMAutomationAccount -ResourceGroupName "ContosoDev-Test$env:BuildID" `
-        -Name 'AzureDSC'+$env:BuildID
+        -Name "AzureDSC$env:BuildID"
         $RegistrationInfo = $Account | Get-AzureRmAutomationRegistrationInfo
         $registrationUrl = $RegistrationInfo.Endpoint
         $registrationKey = $RegistrationInfo.PrimaryKey | ConvertTo-SecureString -AsPlainText `
@@ -545,8 +545,8 @@ function Wait-NodeCompliance
     [CmdletBinding()]     
     param
     (
-        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID,
-        [string]$AutomationAccountName = 'AzureDSC'+$env:BuildID
+        [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID",
+        [string]$AutomationAccountName = "AzureDSC$env:BuildID"
     )
     try 
     {
@@ -575,7 +575,7 @@ function Remove-AzureTestResources
     [CmdletBinding()]
     param
     (
-        [string]$ResourceGroupName = 'ContosoDev-Test'+$env:BuildID
+        [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID"
     )
     try {
         $Remove = Remove-AzureRmResourceGroup -Name $ResourceGroupName -Force
