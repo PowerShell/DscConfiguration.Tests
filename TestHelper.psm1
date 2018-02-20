@@ -490,7 +490,7 @@ function New-AzureTestVM
         $vmName = "$Configuration.$($OSVersion.replace('-',''))"
 
         # Azure storage account names cannot exceed 24 characters
-        $storageAccountSuffix = $OSVersion.replace('-','')
+        $storageAccountSuffix = $OSVersion.replace('-','').toLower()
         if ($storageAccountSuffix.Length -gt 22) {
             $storageAccountName = "sa$($storageAccountSuffix.substring(0,21))"
         }
@@ -519,7 +519,7 @@ function New-AzureTestVM
         }
 
         # Deploy ARM template
-        $AzureVm = New-AzureRMResourceGroupDeployment @DeploymentParameters
+        New-AzureRMResourceGroupDeployment @DeploymentParameters
 
         # Get deployment details
         $Status = Get-AzureRMResourceGroupDeployment -ResourceGroupName "ContosoDev-Test$env:BuildID" `
