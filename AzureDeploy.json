@@ -266,7 +266,6 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "osdisk",
             "createOption": "FromImage"
           },
           "dataDisks": [
