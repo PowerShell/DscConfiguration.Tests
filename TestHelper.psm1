@@ -489,6 +489,15 @@ function New-AzureTestVM
         # VM Name based on configuration name and OS name
         $vmName = "$Configuration.$($OSVersion.replace('-',''))"
 
+        # Azure storage account names cannot exceed 24 characters
+        $storageAccountSuffix = $OSVersion.replace('-','')
+        if ($storageAccountSuffix.Length -gt 22) {
+            $storageAccountName = "sa$($storageAccountSuffix.substring(0,22))"
+        }
+        else {
+            $storageAccountName = "sa$$storageAccountSuffix"
+        }
+
         # Build hashtable of deployment parameters
         $DeploymentParameters = @{
             Name = $vmName
@@ -497,7 +506,7 @@ function New-AzureTestVM
             TemplateParameterFile = "$env:BuildFolder\DSCConfiguration.Tests\AzureDeploy.parameters.json"
             dnsLabelPrefix = $dnsLabelPrefix
             vmName = $vmName
-            storageAccountName = "sa$($OSVersion.replace('-','').ToLower().substring(0,22))"
+            storageAccountName = $storageAccountName
             nicName = "nic$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
             publicIPAddressName = "pip$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
             virtualNetworkName = "net$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
