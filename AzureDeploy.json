@@ -266,12 +266,21 @@
             "version": "latest"
           },
           "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))).primaryEndpoints.blob, 'vhds/', parameters('dnsLabelPrefix'), 'osdisk.vhd')]"
+            },
+            "caching": "ReadWrite",
             "createOption": "FromImage"
           },
           "dataDisks": [
             {
-              "diskSizeGB": 10,
+              "name": "datadisk",
+              "diskSizeGB": "10",
               "lun": 0,
+              "vhd": {
+              "uri": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))).primaryEndpoints.blob, 'vhds/', parameters('dnsLabelPrefix'), 'datadisk.vhd')]"
+              },
               "createOption": "Empty"
             }
           ]
