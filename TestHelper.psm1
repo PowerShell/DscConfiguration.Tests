@@ -318,7 +318,7 @@ function Wait-ModuleExtraction
         while ((Get-AzureRMAutomationModule -ResourceGroupName $ResourceGroupName `
         -AutomationAccountName $AutomationAccountName -Name $Module.Name).ProvisioningState `
         -ne 'Succeeded') {
-                Start-Sleep -Seconds 15
+                Start-Sleep -Seconds 5
         }
     }
     catch [System.Exception] 
@@ -396,7 +396,7 @@ function Wait-ConfigurationCompilation
     {
         while (@('Completed','Suspended') -notcontains (Get-AzureRmAutomationDscCompilationJob -ResourceGroupName $ResourceGroupName `
         -AutomationAccountName $AutomationAccountName -Name $Configuration.Name).Status) {
-            Start-Sleep -Seconds 15
+            Start-Sleep -Seconds 5
         }   
     }
     catch [System.Exception] 
