@@ -495,7 +495,7 @@ function New-AzureTestVM
             $storageAccountName = "sa$($storageAccountSuffix.substring(0,21))"
         }
         else {
-            $storageAccountName = "sa$$storageAccountSuffix"
+            $storageAccountName = "sa$storageAccountSuffix"
         }
 
         # Build hashtable of deployment parameters
