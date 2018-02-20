@@ -237,7 +237,9 @@ Add-BuildTask IntegrationTestAzureVMs {
 .Synopsis: remove all assets deployed to Azure and any local temporary changes (should be none)
 #>
 Exit-Build {
-    #Remove-AzureTestResources
+    # temporary for diagnostics and QA
+    Start-Sleep -Seconds 600
+    Remove-AzureTestResources
 }
 
 <#
