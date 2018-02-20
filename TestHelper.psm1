@@ -492,7 +492,7 @@ function New-AzureTestVM
         # Azure storage account names cannot exceed 24 characters
         $storageAccountSuffix = $OSVersion.replace('-','')
         if ($storageAccountSuffix.Length -gt 22) {
-            $storageAccountName = "sa$($storageAccountSuffix.substring(0,22))"
+            $storageAccountName = "sa$($storageAccountSuffix.substring(0,21))"
         }
         else {
             $storageAccountName = "sa$$storageAccountSuffix"
