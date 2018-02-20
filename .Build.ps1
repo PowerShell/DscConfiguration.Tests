@@ -244,5 +244,5 @@ Exit-Build {
 .Synopsis: default build tasks
 #>
 Add-BuildTask . LoadConfigurationScript, LintUnitTests, AzureLogin, `
-ResourceGroupAndAutomationAccount, AzureAutomationAssets, AzureVM, `
-IntegrationTestAzureAutomationDSC, IntegrationTestAzureVMs
+ResourceGroupAndAutomationAccount, AzureAutomationAssets, `
+IntegrationTestAzureAutomationDSC, AzureVM, IntegrationTestAzureVMs
