@@ -237,7 +237,7 @@ Add-BuildTask IntegrationTestAzureVMs {
 .Synopsis: remove all assets deployed to Azure and any local temporary changes (should be none)
 #>
 Exit-Build {
-    #Remove-AzureTestResources
+    Remove-AzureTestResources
 }
 
 <#
