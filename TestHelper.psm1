@@ -555,13 +555,15 @@ function Wait-NodeCompliance
         -AutomationAccountName $AutomationAccountName
 
         foreach ($Node in $Nodes) {
-            while (@($null, 'InProgress', 'Pending') -contains (Get-AzureRMAutomationDSCNodeReport -ResourceGroupName $ResourceGroupName `
-            -AutomationAccountName $AutomationAccountName -NodeID $Node.ID).Status) {
+            $Status = $null
+            while (@($null, 'InProgress', 'Pending') -contains $Status) {
                 Start-Sleep -Seconds 5
+                $Status = (Get-AzureRMAutomationDSCNodeReport -ResourceGroupName $ResourceGroupName `
+                          -AutomationAccountName $AutomationAccountName `
+                          -NodeID $Node.ID).Status
             }
         }
-        Write-Output "Node state for $Node is $(Get-AzureRMAutomationDSCNodeReport -ResourceGroupName $ResourceGroupName `
-        -AutomationAccountName $AutomationAccountName -NodeID $Node.ID).Status)"
+        Write-Output "Node state for $($Node.Name) is $Status)"
     }
     catch [System.Exception] 
     {
