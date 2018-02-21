@@ -704,3 +704,22 @@ function Get-SuppressedPSSARuleNameList
 
     return $suppressedPSSARuleNames
 }
+
+<#
+#>
+function Get-PSCredentialTypeParameters
+{
+param(
+    [Parameter(Mandatory = $true)]    
+    [string]
+    $CmdletName
+)
+    $returnArrayofParameters = @()
+    $CmdletParameters = Get-Command $CmdletName | ForEach-Object -Process {$_.Parameters}
+    Foreach ($Parameter in $CmdletParameters.Keys) {
+        if ($CmdletParameters.$Parameter.ParameterType.Name -eq 'PSCredential') {
+            $returnArrayofParameters += $Parameter
+        }
+    }
+    return $returnArrayofParameters
+}
