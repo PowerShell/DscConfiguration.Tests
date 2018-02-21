@@ -254,7 +254,7 @@
           "vmSize": "Standard_DS2_v2"
         },
         "osProfile": {
-          "computerName": "[substring(parameters('WindowsOSVersion'),0,7)]",
+          "computerName": "[substring(parameters('WindowsOSVersion'),0,14)]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
