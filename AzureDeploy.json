@@ -339,7 +339,7 @@
                     },
                     {
                       "Name": "RebootNodeifNeeded",
-                      "Value": "True",
+                      "Value": $true,
                       "TypeName": "Boolean"
                     }
                 ]
