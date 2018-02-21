@@ -486,14 +486,9 @@ function New-AzureTestVM
         # VM Name based on configuration name and OS name
         $vmName = "$Configuration.$($OSVersion.replace('-',''))"
 
-        # Azure storage account names cannot exceed 24 characters
-        $storageAccountSuffix = $OSVersion.replace('-','').toLower()
-        if ($storageAccountSuffix.Length -gt 22) {
-            $storageAccountName = "sa$($storageAccountSuffix.substring(0,21))"
-        }
-        else {
-            $storageAccountName = "sa$storageAccountSuffix"
-        }
+        # Azure storage account names must be unique and cannot exceed 24 characters
+        $storageAccountName = "sa$env:BuildID$($OSVersion.replace('-',''))"
+        $storageAccountName = $storageAccountName.toLower().substring(0,23)
 
         # Build hashtable of deployment parameters
         $DeploymentParameters = @{
