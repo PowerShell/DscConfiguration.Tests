@@ -558,9 +558,10 @@ function Wait-NodeCompliance
             $Status = $null
             while (@($null, 'InProgress', 'Pending') -contains $Status) {
                 Start-Sleep -Seconds 5
-                $Status = (Get-AzureRMAutomationDSCNodeReport -ResourceGroupName $ResourceGroupName `
+                $Report = Get-AzureRMAutomationDSCNodeReport -ResourceGroupName $ResourceGroupName `
                           -AutomationAccountName $AutomationAccountName `
-                          -NodeID $Node.ID).Status
+                          -NodeID $Node.ID -Latest
+                If ($Report.ReportType -eq 'Consistency') {$Status = $Report.Status}
             }
         }
         Write-Output "Node state for $($Node.Name) is $Status)"
