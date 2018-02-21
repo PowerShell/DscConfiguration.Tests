@@ -129,11 +129,6 @@ function Invoke-ConfigurationPrep
             $RequiredModules = $ScriptFileInfo.RequiredModules.split(',')
         }
 
-        # Load required modules from gallery
-        foreach ($module in $RequiredModules) {
-            Install-Module $module -Force -Repository PSGallery
-          }
-
         # Get list of configurations
         . $env:BuildFolder\$env:ProjectName.ps1
         $Configuration = Get-Command -Type Configuration | Where-Object {
