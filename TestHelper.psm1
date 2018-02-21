@@ -511,7 +511,7 @@ function New-AzureTestVM
         }
 
         # Deploy ARM template
-        New-AzureRMResourceGroupDeployment @DeploymentParameters
+        $AzureVM = New-AzureRMResourceGroupDeployment @DeploymentParameters
 
         # Get deployment details
         $Status = Get-AzureRMResourceGroupDeployment -ResourceGroupName "ContosoDev-Test$env:BuildID" `
