@@ -47,7 +47,7 @@ Enter-Build {
     # Optimize timing for AzureRM module to install
     Write-Output "Installing latest AzureRM module as background job"
     $ARM = Start-Job -ScriptBlock {
-        Install-Module "AzureRm.Resources", "AzureRM.Automation", "AzureAutomationAuthoringToolkit" -force
+        Install-Module "AzureRm.Resources", "AzureRM.Automation", "AzureAutomationAuthoringToolkit" -Scope CurrentUser -Force
     }
 
     # Load helper module from test repo

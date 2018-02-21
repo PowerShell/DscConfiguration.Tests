@@ -71,7 +71,7 @@ function Get-RequiredGalleryModules
                 if ($Install -eq $true)
                 {
                     Write-Verbose "Installing module: $RequiredModule"
-                    Install-Module -Name $RequiredModule -force
+                    Install-Module -Name $RequiredModule -Scope CurrentUser -Force
                 }
             }
 
@@ -97,7 +97,7 @@ function Get-RequiredGalleryModules
                 {
                     Write-Verbose "Installing module: $($RequiredModule.ModuleName) version $($RequiredModule.ModuleVersion)"
                     Install-Module -Name $RequiredModule.ModuleName `
-                    -RequiredVersion $RequiredModule.ModuleVersion -force
+                    -RequiredVersion $RequiredModule.ModuleVersion -Scope CurrentUser -Force
                 }
             }
         }
