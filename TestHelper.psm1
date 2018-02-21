@@ -207,7 +207,8 @@ function New-ResourceGroupandAutomationAccount
         [string]$TenantID = $env:TenantID,
         [string]$Location = $env:Location,
         [string]$ResourceGroupName = "ContosoDev-Test$env:BuildID",
-        [string]$AutomationAccountName = "AzureDSC$env:BuildID"
+        [string]$AutomationAccountName = "AzureDSC$env:BuildID",
+        [securestring]$Password
     )
     try 
     {
@@ -252,10 +253,9 @@ function New-ResourceGroupandAutomationAccount
             throw "Automation account $AutomationAccountName could not be validated"
         }
 
-        $username = 'dscTestUser'
-        $password = New-RandomPassword | ConvertTo-SecureString -AsPlainText -Force
+        $Username = 'dscTestUser'
         $Credential = new-object -typename System.Management.Automation.PSCredential `
-         -argumentlist $username, $password
+         -argumentlist $Username, $Password
         $CredentialAsset = New-AzureRmAutomationCredential -Name 'Credential' `
             -Value $Credential -ResourceGroupName $ResourceGroupName `
             -AutomationAccountName $AutomationAccountName
@@ -467,7 +467,8 @@ function New-AzureTestVM
         [Parameter(Mandatory=$true)]
         [string]$Configuration,
         [Parameter(Mandatory=$true)]
-        [string]$OSVersion
+        [string]$OSVersion,
+        [securestring]$Password
     )
     try 
     {
@@ -478,10 +479,6 @@ function New-AzureTestVM
         $registrationUrl = $RegistrationInfo.Endpoint
         $registrationKey = $RegistrationInfo.PrimaryKey | ConvertTo-SecureString -AsPlainText `
         -Force
-
-        # Random password for local administrative account
-        $adminPassword = new-randompassword -length 24 -UseSpecialCharacters | `
-        ConvertTo-SecureString -AsPlainText -Force
 
         # DNS name based on random chars followed by first 10 of configuration name
         $dnsLabelPrefix = "test$(Get-Random -Minimum 1000 -Maximum 9999)"
@@ -512,7 +509,7 @@ function New-AzureTestVM
             virtualNetworkName = "net$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
             nsgName = "nsg$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
             WindowsOSVersion = $OSVersion
-            adminPassword = $adminPassword
+            adminPassword = $Password
             registrationUrl = $registrationUrl
             registrationKey = $registrationKey
             nodeConfigurationName = "$Configuration.localhost"

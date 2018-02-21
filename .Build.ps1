@@ -55,6 +55,10 @@ Enter-Build {
     
     # Fix module path if duplicates exist (TestHelper)
     Invoke-UniquePSModulePath
+
+    # Create random password
+    $script:Password = new-randompassword -length 24 -UseSpecialCharacters | `
+    ConvertTo-SecureString -AsPlainText -Force
 }
 
 <#
@@ -110,7 +114,7 @@ Add-BuildTask AzureLogin {
 #>
 Add-BuildTask ResourceGroupAndAutomationAccount {
     # Create Azure Resource Group and Automation account (TestHelper)
-    New-ResourceGroupandAutomationAccount
+    New-ResourceGroupandAutomationAccount -Password $script:Password
 }
 
 <#
@@ -166,16 +170,18 @@ Add-BuildTask AzureVM {
             param
             (
                 [string]$Configuration,
-                [string]$OSVersion
+                [string]$OSVersion,
+                [securestring]$Password
             )
             #>
             Import-Module -Name $env:BuildFolder\DscConfiguration.Tests\TestHelper.psm1 -Force
         
             Invoke-AzureSPNLogin
         
-            New-AzureTestVM -Configuration $Configuration -OSVersion $OSVersion
+            New-AzureTestVM -Configuration $Configuration -OSVersion $OSVersion `
+            -Password $Password
 
-        } -ArgumentList @($Script:Configuration.Name, $OSVersion) -Name $JobName
+        } -ArgumentList @($Script:Configuration.Name, $OSVersion, $script:Password) -Name $JobName
         $Script:VMDeployments += $Script:VMDeployment
 
         # pause for provisioning to avoid conflicts (this is a case where slower is faster)
