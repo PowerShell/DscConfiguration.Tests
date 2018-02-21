@@ -331,6 +331,16 @@
                         "Name": "NodeConfigurationName",
                         "Value": "[parameters('nodeConfigurationName')]",
                         "TypeName": "System.String"
+                    },
+                    {
+                        "Name": "ConfigurationMode",
+                        "Value": "ApplyandAutoCorrect",
+                        "TypeName": "System.String"
+                    },
+                    {
+                      "Name": "RebootNodeifNeeded",
+                      "Value": "True",
+                      "TypeName": "Boolean"
                     }
                 ]
             }
