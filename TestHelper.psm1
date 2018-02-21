@@ -123,12 +123,12 @@ function Invoke-ConfigurationPrep
         
         if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
             # Discover OS versions, or default to Server 2016 Datacenter Edition
-            $OSVersions = if ($ScriptFileInfo.PrivateData -contains ',') {
+            $OSVersions = if ($ScriptFileInfo.PrivateData.Contains(',')) {
                 $ScriptFileInfo.PrivateData.split(',')
             } else {$ScriptFileInfo.PrivateData}
             if (!$OSVersions) {$OSversions = '2016-Datacenter'}
             # Discover list of required modules
-            $RequiredModules = if ($ScriptFileInfo.RequiredModules -contains ',') {
+            $RequiredModules = if ($ScriptFileInfo.RequiredModules.Contains(',')) {
                 $ScriptFileInfo.RequiredModules.split(',')
             } else {$ScriptFileInfo.RequiredModules}
         }
