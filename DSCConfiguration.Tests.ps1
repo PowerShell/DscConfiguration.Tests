@@ -421,10 +421,6 @@ Describe 'Common Tests - Azure VM' -Tag AzureVMIntegration {
     $NodeNames = $Nodes | ForEach-Object {$_.Name}
 
     Context "AADSC Nodes" {
-        It "There are as many nodes as configurations" {
-            $NodeNames.Count | Should BeGreaterThan 0
-            $NodeNames.Count -eq ($ConfigurationCommands.Count * $OSVersion.Count) | Should Be True
-        }
         foreach ($Node in $Nodes) {
             It "Node $($Node.Name) is compliant with $($Node.NodeConfigurationName)" {
                 $Node.Status | Should Be 'Compliant'
