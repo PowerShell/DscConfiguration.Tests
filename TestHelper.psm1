@@ -38,7 +38,7 @@ function Get-RequiredGalleryModules
     [OutputType([System.Object[]])]
     param(
         [Parameter(Mandatory=$true)]
-        [string[]]$RequiredModules,
+        $RequiredModules,
         [switch]$Install
     )
     try {
