@@ -233,7 +233,7 @@ function New-ResourceGroupandAutomationAccount
 
         # Create Resource Group
         $ResourceGroup = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location `
-            -Tags 'ConfigurationTest' -Force
+            -Tags @{Build='AppVeyor'} -Force
 
         Write-Output "Provisioning of Resource Group $ResourceGroupName returned $($ResourceGroup.ProvisioningState)"
 
