@@ -34,13 +34,13 @@ function Invoke-UniquePSModulePath
 #>
 function Get-RequiredGalleryModules
 {
-    [CmdletBinding()]
-    [OutputType([System.Object[]])]
-    param(
-        [Parameter(Mandatory=$true)]
-        $RequiredModules,
-        [switch]$Install
-    )
+[OutputType([System.Object[]])]
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$true)]
+    $RequiredModules,
+    [switch]$Install
+)
     try {
         # Load module data and create array of objects containing prerequisite details for use 
         # later in Azure Automation
