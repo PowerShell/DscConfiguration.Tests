@@ -79,7 +79,8 @@ function Get-RequiredGalleryModules
             }
 
             # If a version is given, get it specifically
-            if ($RequiredModule.gettype().Name -eq 'ReadOnlyCollection`1')
+            if ($RequiredModule.gettype().Name -eq 'ReadOnlyCollection`1' `
+                -or $RequiredModule.gettype().Name -eq 'Hashtable')
             {
                 Write-Output "Searching PowerShell Gallery for module $($RequiredModule.Name)"
                 $Uri = "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.Name)'"
