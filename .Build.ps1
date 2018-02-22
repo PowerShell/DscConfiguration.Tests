@@ -95,7 +95,9 @@ Add-BuildTask LintUnitTests {
 
     Push-AppveyorArtifact -Path (Resolve-Path $testResultsFile)
 
-    $host.SetShouldExit($Pester.FailedCount)
+    if ($Pester.FailedCount -gt 0) {
+        throw "Pester returned errors after tests`n$Pester"
+    }
 }
 
 <#
@@ -206,7 +208,9 @@ Add-BuildTask IntegrationTestAzureAutomationDSC {
 
     Push-AppveyorArtifact -Path (Resolve-Path $testResultsFile)
 
-    $host.SetShouldExit($Pester.FailedCount)
+    if ($Pester.FailedCount -gt 0) {
+        throw "Pester returned errors after tests`n$Pester"
+    }
 }
 
 <#
@@ -236,7 +240,9 @@ Add-BuildTask IntegrationTestAzureVMs {
 
     Push-AppveyorArtifact -Path (Resolve-Path $testResultsFile)
 
-    $host.SetShouldExit($Pester.FailedCount)
+    if ($Pester.FailedCount -gt 0) {
+        throw "Pester returned errors after tests`n$Pester"
+    }
 }
 
 <#
