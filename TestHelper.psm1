@@ -53,9 +53,10 @@ function Get-RequiredGalleryModules
             # If no version is given, get the latest version
             if ($RequiredModule.gettype().Name -eq 'String')
             {
+                Write-Output "Searching PowerShell Gallery for module $RequiredModule"
+                $Uri = "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$RequiredModule'"
                 if ($galleryReference = Invoke-RestMethod -Method Get `
-                    -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$RequiredModule'" `
-                    -ErrorAction Continue)
+                    -Uri $Uri -ErrorAction Continue)
                 {
                     Write-Verbose "Identified module $RequiredModule in the PowerShell Gallery"
                     $ModuleReference | Add-Member -MemberType NoteProperty `
@@ -80,9 +81,9 @@ function Get-RequiredGalleryModules
             if ($RequiredModule.gettype().Name -eq 'ReadOnlyCollection`1')
             {
                 Write-Output "Searching PowerShell Gallery for module $($RequiredModule.Name)"
+                $Uri = "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.Name)'"
                 if ($galleryReference = Invoke-RestMethod -Method Get `
-                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.Name)'" `
-                -ErrorAction Continue)
+                -Uri $Uri -ErrorAction Continue)
                 {
                     Write-Output "Identified module $($RequiredModule.Name) in the PowerShell Gallery"
                     $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
