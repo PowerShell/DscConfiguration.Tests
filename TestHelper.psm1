@@ -108,7 +108,7 @@ function Get-RequiredGalleryModules
     }
     catch [System.Exception] 
     {
-        throw "An error occured while getting modules from PowerShellGallery.com`n$($_.exception.message)"
+        throw "An error occured while getting modules from PowerShellGallery.com`n$Uri`n$($_.exception.message)"
     }
 }
 
