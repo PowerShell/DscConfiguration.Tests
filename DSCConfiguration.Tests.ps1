@@ -371,7 +371,9 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
     $AutomationAccount = "AzureDSC$env:BuildID"
 
     $ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1"
-    $RequiredModules = $ScriptFileInfo.RequiredModules
+    $RequiredModules = if ($ScriptFileInfo.RequiredModules.Contains(',')) {
+        $ScriptFileInfo.RequiredModules.split(',')
+    } else {$ScriptFileInfo.RequiredModules}
 
     . $env:BuildFolder\$env:ProjectName.ps1
     $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Name -eq $env:ProjectName} | ForEach-Object {$_.Name}
@@ -385,7 +387,7 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
     $AADSCConfigurationNames = $AADSCConfigurations | ForEach-Object {$_.Name}
 
     Context "Modules" {
-        ForEach ($RequiredModule in $RequiredModules.split(',')) {
+        ForEach ($RequiredModule in $RequiredModules) {
             It "$RequiredModule should be present in AzureDSC" {
                 $AADSCModuleNames.Contains($RequiredModule) | Should Be True
             }
