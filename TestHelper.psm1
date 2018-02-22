@@ -9,7 +9,7 @@ function Invoke-UniquePSModulePath
     () 
     try 
     {
-        Write-Output 'Verifying there are no duplicates in PSModulePath'
+        Write-Verbose 'Verifying there are no duplicates in PSModulePath'
         # Correct duplicates in environment psmodulepath
         foreach($path in $env:psmodulepath.split(';').ToUpper().ToLower()) {
             [array]$correctDirFormat += "$path\;"
@@ -45,7 +45,7 @@ function Get-RequiredGalleryModules
         # Load module data and create array of objects containing prerequisite details for use 
         # later in Azure Automation
         $ModulesInformation = @()
-        Write-Output "The RequiredModules parameter input was of type $($RequiredModules.gettype())"
+        Write-Verbose "The RequiredModules parameter input was of type $($RequiredModules.gettype())"
         foreach($RequiredModule in $RequiredModules)
         {
             # Placeholder object to store module names and locations
@@ -54,7 +54,7 @@ function Get-RequiredGalleryModules
             # If no version is given, get the latest version
             if ($RequiredModule.gettype().Name -eq 'String')
             {
-                Write-Output "Searching PowerShell Gallery for module $RequiredModule"
+                Write-Verbose "Searching PowerShell Gallery for module $RequiredModule"
                 $Uri = "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$RequiredModule'"
                 if ($galleryReference = Invoke-RestMethod -Method Get `
                     -Uri $Uri -ErrorAction Continue)
@@ -82,12 +82,12 @@ function Get-RequiredGalleryModules
             if ($RequiredModule.gettype().Name -eq 'ReadOnlyCollection`1' `
                 -or $RequiredModule.gettype().Name -eq 'Hashtable')
             {
-                Write-Output "Searching PowerShell Gallery for module $($RequiredModule.Name)"
+                Write-Verbose "Searching PowerShell Gallery for module $($RequiredModule.Name)"
                 $Uri = "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.Name)'"
                 if ($galleryReference = Invoke-RestMethod -Method Get `
                 -Uri $Uri -ErrorAction Continue)
                 {
-                    Write-Output "Identified module $($RequiredModule.Name) in the PowerShell Gallery"
+                    Write-Verbose "Identified module $($RequiredModule.Name) in the PowerShell Gallery"
                     $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
                     -Value $RequiredModule.Name
                     $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `
@@ -177,7 +177,7 @@ function Invoke-AzureSPNLogin
     )
     try 
     {
-        Write-Output "Logging in to Azure"
+        Write-Verbose "Logging in to Azure"
         
         # Build platform (AppVeyor) does not offer solution for passing secure strings
         $Credential = New-Object -typename System.Management.Automation.PSCredential -argumentlist $ApplicationID, $(convertto-securestring -String $ApplicationPassword -AsPlainText -Force)
@@ -231,7 +231,7 @@ function New-ResourceGroupandAutomationAccount
         $Subscription = Select-AzureRMSubscription -SubscriptionID $SubscriptionID `
             -TenantID $TenantID
 
-        Write-Output "Registering 'Microsoft.Automation' resource provider"
+        Write-Verbose "Registering 'Microsoft.Automation' resource provider"
 
             # Ensure the Microsoft.Automation resource provider is registered
         Register-AzureRmResourceProvider -ProviderNamespace 'Microsoft.Automation'
@@ -240,7 +240,7 @@ function New-ResourceGroupandAutomationAccount
         $ResourceGroup = New-AzureRmResourceGroup -Name $ResourceGroupName -Location $Location `
             -Tags @{Build='AppVeyor'} -Force
 
-        Write-Output "Provisioning of Resource Group $ResourceGroupName returned $($ResourceGroup.ProvisioningState)"
+        Write-Verbose "Provisioning of Resource Group $ResourceGroupName returned $($ResourceGroup.ProvisioningState)"
 
         # Validate provisioning of resource group
         $ResourceGroupExists = Get-AzureRmResourceGroup -Name $ResourceGroupName
@@ -252,7 +252,7 @@ function New-ResourceGroupandAutomationAccount
         $AutomationAccount = New-AzureRMAutomationAccount -ResourceGroupName $ResourceGroupName `
             -Name $AutomationAccountName -Location $Location -Plan Basic
 
-        Write-Output "Provisioning of Automation Account $AutomationAccountName returned $($AutomationAccount.State)"
+        Write-Verbose "Provisioning of Automation Account $AutomationAccountName returned $($AutomationAccount.State)"
 
         # Validate provisioning of resource group
         $AutomationAccountExists = Get-AzureRmAutomationAccount -ResourceGroupName $ResourceGroupName `
@@ -290,7 +290,7 @@ function Import-ModuleToAzureAutomation
     )
     try
     {
-        Write-Output "Importing module $($Module.Name) to Azure Automation"
+        Write-Verbose "Importing module $($Module.Name) to Azure Automation"
         # Import module from custom object
         $ImportedModule = New-AzureRMAutomationModule -ResourceGroupName $ResourceGroupName `
         -AutomationAccountName $AutomationAccountName -Name $Module.Name -ContentLink $Module.URI
@@ -352,7 +352,7 @@ function Import-ConfigurationToAzureAutomation
     )
     try 
     {
-        Write-Output "Importing configuration $($Configuration.Name) to Azure Automation"
+        Write-Verbose "Importing configuration $($Configuration.Name) to Azure Automation"
         # Import Configuration to Azure Automation DSC
         $ConfigurationImport = Import-AzureRmAutomationDscConfiguration `
         -ResourceGroupName $ResourceGroupName -AutomationAccountName $AutomationAccountName `
@@ -528,10 +528,10 @@ function New-AzureTestVM
 
         # Write output to build log
         if ($Status.ProvisioningState -eq 'Succeeded') {
-            Write-Output "Virtual machine DNS address: $($Status.Outputs.Values.Value)"
+            Write-Verbose "Virtual machine DNS address: $($Status.Outputs.Values.Value)"
         }
         else {
-            Write-Output $AzureVm
+            Write-Verbose $AzureVm
             $Error = Get-AzureRMResourceGroupDeploymentOperation -ResourceGroupName "ContosoDev-Test$env:BuildID" `
             -Name $vmName
             $Message = $Error.Properties | Where-Object {$_.ProvisioningState -eq 'Failed'} | `
@@ -573,7 +573,7 @@ function Wait-NodeCompliance
                 If ($Report.ReportType -eq 'Consistency') {$Status = $Report.Status}
             }
         }
-        Write-Output "Node state for $($Node.Name) is $Status)"
+        Write-Verbose "Node state for $($Node.Name) is $Status)"
     }
     catch [System.Exception] 
     {
