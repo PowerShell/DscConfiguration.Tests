@@ -45,6 +45,7 @@ function Get-RequiredGalleryModules
         # Load module data and create array of objects containing prerequisite details for use 
         # later in Azure Automation
         $ModulesInformation = @()
+        Write-Output "The RequiredModules parameter input was of type $($RequiredModules.gettype())"
         foreach($RequiredModule in $RequiredModules)
         {
             # Placeholder object to store module names and locations
