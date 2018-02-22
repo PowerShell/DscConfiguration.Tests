@@ -54,15 +54,16 @@ function Get-RequiredGalleryModules
             if ($RequiredModule.gettype().Name -eq 'String')
             {
                 if ($galleryReference = Invoke-RestMethod -Method Get `
-                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$RequiredModule'" `
-                -ErrorAction Continue)
+                    -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$RequiredModule'" `
+                    -ErrorAction Continue)
                 {
                     Write-Verbose "Identified module $RequiredModule in the PowerShell Gallery"
-                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
-                    -Value $RequiredModule
-                    $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `
-                    -Value ($galleryReference | Where-Object {$_.Properties.IsLatestVersion.'#text' `
-                    -eq $true}).content.src
+                    $ModuleReference | Add-Member -MemberType NoteProperty `
+                        -Name 'Name' -Value $RequiredModule
+                    $ModuleReference | Add-Member -MemberType NoteProperty `
+                        -Name 'URI' -Value ($galleryReference | `
+                        Where-Object {$_.Properties.IsLatestVersion.'#text' `
+                        -eq $true}).content.src
                     $ModulesInformation += $ModuleReference
                 }
                 else {
@@ -78,11 +79,12 @@ function Get-RequiredGalleryModules
             # If a version is given, get it specifically
             if ($RequiredModule.gettype().Name -eq 'ReadOnlyCollection`1')
             {
+                Write-Output "Searching PowerShell Gallery for module $($RequiredModule.Name)"
                 if ($galleryReference = Invoke-RestMethod -Method Get `
                 -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.Name)'" `
                 -ErrorAction Continue)
                 {
-                    Write-Verbose "Identified module $($RequiredModule.Name) in the PowerShell Gallery"
+                    Write-Output "Identified module $($RequiredModule.Name) in the PowerShell Gallery"
                     $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
                     -Value $RequiredModule.Name
                     $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `

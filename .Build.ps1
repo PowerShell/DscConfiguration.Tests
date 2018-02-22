@@ -68,17 +68,20 @@ Add-BuildTask LoadConfigurationScript {
     # Prep and import Configuration
     $script:Configuration = Invoke-ConfigurationPrep
 
-    Write-Output "Loaded Configuration:`n$($script:Configuration | ForEach-Object -Process `
+    Write-Output "Loaded Configuration:`n$($script:Configuration | `
+        ForEach-Object -Process `
         {$_.Name})"
-    Write-Output "Supported operating systems:`n$($script:Configuration | ForEach-Object -Process `
+    Write-Output "Supported operating systems:`n$($script:Configuration | `
+        ForEach-Object -Process `
         {$_.OSVersions})"
 
     # This was moved from another build task used when configurations were stored in modules
     # and ideally should be a new seperate build task
-    $script:Modules = Get-RequiredGalleryModules $($script:Configuration | ForEach-Object -Process `
-    {$_.RequiredModules})
+    $script:Modules = Get-RequiredGalleryModules $($script:Configuration | `
+                      ForEach-Object -Process {$_.RequiredModules})
 
-    Write-Output "Required Modules:`n$($script:Modules | ForEach-Object -Process {$_.Name})"
+    Write-Output "Required Modules:`n$($script:Modules | `
+        ForEach-Object -Process {$_.Name})"
     
 }
 
