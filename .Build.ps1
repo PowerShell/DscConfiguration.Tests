@@ -77,7 +77,7 @@ Add-BuildTask LoadConfigurationScript {
 
     # This was moved from another build task used when configurations were stored in modules
     # and ideally should be a new seperate build task
-    $script:Modules = Get-RequiredGalleryModules $($script:Configuration | `
+    $script:Modules = Get-RequiredGalleryModules $($script:Configuration -Verbose | `
                       ForEach-Object -Process {$_.RequiredModules})
 
     Write-Output "Required Modules:`n$($script:Modules | `
