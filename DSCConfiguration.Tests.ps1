@@ -371,19 +371,23 @@ Describe 'Common Tests - Azure Automation DSC' -Tag AADSCIntegration {
     $AutomationAccount = "AzureDSC$env:BuildID"
 
     $ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1"
-    $RequiredModules = if ($ScriptFileInfo.RequiredModules.Contains(',')) {
-        $ScriptFileInfo.RequiredModules.split(',')
-    } else {$ScriptFileInfo.RequiredModules}
+    
+    $RequiredModules = $ScriptFileInfo.RequiredModules | ForEach-Object {$_.Name}
 
     . $env:BuildFolder\$env:ProjectName.ps1
-    $ConfigurationCommands = Get-Command -Type Configuration | Where-Object {$_.Name -eq $env:ProjectName} | ForEach-Object {$_.Name}
+    
+    $ConfigurationCommands = Get-Command -Type Configuration | `
+                             Where-Object {$_.Name -eq $env:ProjectName} | `
+                             ForEach-Object {$_.Name}
 
     # Get AADSC Modules
-    $AADSCModules = Get-AzureRmAutomationModule -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount
+    $AADSCModules = Get-AzureRmAutomationModule -ResourceGroupName $ResourceGroup `
+                    -AutomationAccountName $AutomationAccount
     $AADSCModuleNames = $AADSCModules | ForEach-Object {$_.Name}
 
     # Get AADSC Configurations
-    $AADSCConfigurations = Get-AzureRmAutomationDscConfiguration -ResourceGroupName $ResourceGroup -AutomationAccountName $AutomationAccount
+    $AADSCConfigurations = Get-AzureRmAutomationDscConfiguration -ResourceGroupName `
+                           $ResourceGroup -AutomationAccountName $AutomationAccount
     $AADSCConfigurationNames = $AADSCConfigurations | ForEach-Object {$_.Name}
 
     Context "Modules" {

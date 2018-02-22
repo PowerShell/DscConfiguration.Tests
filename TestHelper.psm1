@@ -76,28 +76,28 @@ function Get-RequiredGalleryModules
             }
 
             # If a version is given, get it specifically
-            if ($RequiredModule.gettype().Name -eq 'Hashtable')
+            if ($RequiredModule.gettype().Name -eq 'ReadOnlyCollection`1')
             {
                 if ($galleryReference = Invoke-RestMethod -Method Get `
-                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.ModuleName)'" `
+                -Uri "https://www.powershellgallery.com/api/v2/FindPackagesById()?id='$($RequiredModule.Name)'" `
                 -ErrorAction Continue)
                 {
-                    Write-Verbose "Identified module $($RequiredModule.ModuleName) in the PowerShell Gallery"
+                    Write-Verbose "Identified module $($RequiredModule.Name) in the PowerShell Gallery"
                     $ModuleReference | Add-Member -MemberType NoteProperty -Name 'Name' `
-                    -Value $RequiredModule.ModuleName
+                    -Value $RequiredModule.Name
                     $ModuleReference | Add-Member -MemberType NoteProperty -Name 'URI' `
                     -Value ($galleryReference | Where-Object {$_.Properties.Version `
-                    -eq $RequiredModule.ModuleVersion}).content.src
+                    -eq $RequiredModule.Version}).content.src
                     $ModulesInformation += $ModuleReference
                 }
                 else {
-                    throw "The module $($RequiredModule.ModuleName) was not found in the gallery"
+                    throw "The module $($RequiredModule.Name) was not found in the gallery"
                 }
                 if ($Install -eq $true)
                 {
-                    Write-Verbose "Installing module: $($RequiredModule.ModuleName) version $($RequiredModule.ModuleVersion)"
-                    Install-Module -Name $RequiredModule.ModuleName `
-                    -RequiredVersion $RequiredModule.ModuleVersion -Scope CurrentUser -Force
+                    Write-Verbose "Installing module: $($RequiredModule.Name) version $($RequiredModule.Version)"
+                    Install-Module -Name $RequiredModule.Name `
+                    -RequiredVersion $RequiredModule.Version -Scope CurrentUser -Force
                 }
             }
         }
@@ -122,15 +122,15 @@ function Invoke-ConfigurationPrep
         $TestPath = Test-Path "$env:BuildFolder\$env:ProjectName.ps1"
         
         if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
+            
             # Discover OS versions, or default to Server 2016 Datacenter Edition
             $OSVersions = if ($ScriptFileInfo.PrivateData.Contains(',')) {
                 $ScriptFileInfo.PrivateData.split(',')
             } else {$ScriptFileInfo.PrivateData}
             if (!$OSVersions) {$OSversions = '2016-Datacenter'}
+            
             # Discover list of required modules
-            $RequiredModules = if ($ScriptFileInfo.RequiredModules.Contains(',')) {
-                $ScriptFileInfo.RequiredModules.split(',')
-            } else {$ScriptFileInfo.RequiredModules}
+            $RequiredModules = $ScriptFileInfo.RequiredModules
         }
 
         # Get list of configurations
