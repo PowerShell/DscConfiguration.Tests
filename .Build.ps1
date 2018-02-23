@@ -78,7 +78,7 @@ Add-BuildTask LoadConfigurationScript {
     # This was moved from another build task used when configurations were stored in modules
     # and ideally should be a new seperate build task
     $script:Modules = Get-RequiredGalleryModules $($script:Configuration | `
-                      ForEach-Object -Process {$_.RequiredModules}) -Verbose
+                      ForEach-Object -Process {$_.RequiredModules})
 
     Write-Output "Required Modules:`n$($script:Modules | `
         ForEach-Object -Process {$_.Name})"
@@ -119,6 +119,7 @@ Add-BuildTask AzureLogin {
 #>
 Add-BuildTask ResourceGroupAndAutomationAccount {
     # Create Azure Resource Group and Automation account (TestHelper)
+    Write-Output "Creating assets for build $env:BuildID."
     New-ResourceGroupandAutomationAccount -Password $script:Password
 }
 

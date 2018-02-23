@@ -34,13 +34,13 @@ function Invoke-UniquePSModulePath
 #>
 function Get-RequiredGalleryModules
 {
-[OutputType([System.Object[]])]
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory=$true)]
-    $RequiredModules,
-    [switch]$Install
-)
+    [OutputType([System.Object[]])]
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        $RequiredModules,
+        [switch]$Install
+    )
     try {
         # Load module data and create array of objects containing prerequisite details for use 
         # later in Azure Automation
@@ -105,14 +105,13 @@ param(
                 }
             }
         }
-        return $ModulesInformation    
+        return $ModulesInformation
     }
     catch [System.Exception] 
     {
         throw "An error occured while getting modules from PowerShellGallery.com`n$Uri`n$($_.exception.message)"
     }
 }
-
 
 <#
     .SYNOPSIS
