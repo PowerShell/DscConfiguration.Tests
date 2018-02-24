@@ -364,11 +364,8 @@ function Import-ConfigurationToAzureAutomation
             throw "The configuration $($Configuration.Name) could not be validated"
         }
 
-        # Load configdata if it exists
-        if (Test-Path "$env:BuildFolder\ConfigurationData\$($Configuration.Name).ConfigData.psd1") {
-            $ConfigurationData = Import-PowerShellDataFile `
-                "$env:BuildFolder\ConfigurationData\$($Configuration.Name).ConfigData.psd1"
-        }
+        $ConfigurationData = Import-PowerShellDataFile `
+                             "$env:BuildFolder\DSCConfiguration.Tests\ConfigData.psd1"
 
         # Splate params to compile in Azure Automation DSC
         $CompileParams = @{
