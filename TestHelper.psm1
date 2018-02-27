@@ -373,7 +373,7 @@ function Import-ConfigurationToAzureAutomation
         AutomationAccountName = $AutomationAccountName
         ConfigurationName     = $Configuration.Name
         ConfigurationData     = $ConfigurationData
-    }
+        }
         $Compile = Start-AzureRmAutomationDscCompilationJob @CompileParams
     }
     catch [System.Exception] 

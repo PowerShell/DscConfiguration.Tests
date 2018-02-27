@@ -183,6 +183,34 @@
             "priority": 103,
             "direction": "Inbound"
           }
+        },
+        {
+          "name": "Docker",
+          "properties": {
+            "description": "Allow 2375",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "2375",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 104,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "Docker Encrypted",
+          "properties": {
+            "description": "Allow 2376",
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "destinationPortRange": "2376",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 105,
+            "direction": "Inbound"
+          }
         }
       ]
       }
