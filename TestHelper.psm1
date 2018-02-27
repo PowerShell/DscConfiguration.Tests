@@ -503,10 +503,10 @@ function New-AzureTestVM
             dnsLabelPrefix = $dnsLabelPrefix
             vmName = $vmName
             storageAccountName = $storageAccountName
-            nicName = "nic$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
-            publicIPAddressName = "pip$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
-            virtualNetworkName = "net$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
-            nsgName = "nsg$Configuration$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            nicName = "nic$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            publicIPAddressName = "pip$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            virtualNetworkName = "net$env:BuildID$($OSVersion.replace('-','').ToLower())"
+            nsgName = "nsg$env:BuildID$($OSVersion.replace('-','').ToLower())"
             WindowsOSVersion = $OSVersion
             adminPassword = $Password
             registrationUrl = $registrationUrl
