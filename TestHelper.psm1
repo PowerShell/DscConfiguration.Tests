@@ -289,12 +289,13 @@ function Import-ModuleToAzureAutomation
     )
     try
     {
-        Write-Verbose "Importing module $($Module.Name) to Azure Automation"
+        Write-Verbose "Importing module $($Module.Name) to Azure Automation from $($Module.URI)"
         # Import module from custom object
         $ImportedModule = New-AzureRMAutomationModule -ResourceGroupName $ResourceGroupName `
         -AutomationAccountName $AutomationAccountName -Name $Module.Name -ContentLink $Module.URI
 
         # Validate module was imported
+        Write-Verbose "Validating that module $($Module.Name) was imported"
         $ImportedModuleExists = Get-AzureRmAutomationModule -ResourceGroupName $ResourceGroupName `
         -AutomationAccountName $AutomationAccountName -Name $Module.Name
         if ($Null -eq $ImportedModuleExists) {

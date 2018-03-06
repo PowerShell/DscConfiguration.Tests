@@ -141,7 +141,7 @@ Add-BuildTask AzureAutomationAssets {
 
         # Import the modules discovered as requirements to Azure Automation (TestHelper)
         foreach ($ImportModule in $Modules) {
-            Import-ModuleToAzureAutomation -Module $ImportModule
+            Import-ModuleToAzureAutomation -Module $ImportModule -Verbose
         }    
         # Allow module activities to extract before importing configuration (TestHelper)
         foreach ($WaitForModule in $Modules) {
