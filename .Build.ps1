@@ -120,7 +120,7 @@ Add-BuildTask AzureLogin {
 Add-BuildTask ResourceGroupAndAutomationAccount {
     # Create Azure Resource Group and Automation account (TestHelper)
     Write-Output "Creating assets for build $env:BuildID."
-    New-ResourceGroupandAutomationAccount -Password $script:Password
+    New-ResourceGroupandAutomationAccount -Password $script:Password -Verbose
 }
 
 <#
