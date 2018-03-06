@@ -119,6 +119,8 @@ function Get-RequiredGalleryModules
 #>
 function Invoke-ConfigurationPrep
 {
+param()
+
     try 
     {
         # Validate file exists as expected for debug data
@@ -144,7 +146,7 @@ function Invoke-ConfigurationPrep
             $_.Name -eq $env:ProjectName
         }
         Write-Verbose "Identified configuration $Configuration"
-        
+
         # Append metadata about the configuration requirements
         $Configuration | Add-Member -MemberType NoteProperty -Name RequiredModules `
         -Value $RequiredModules
