@@ -66,7 +66,7 @@ Enter-Build {
 #>
 Add-BuildTask LoadConfigurationScript {
     # Prep and import Configuration
-    $script:Configuration = Invoke-ConfigurationPrep
+    $script:Configuration = Invoke-ConfigurationPrep -Verbose
 
     Write-Output "Loaded Configuration:`n$($script:Configuration | `
         ForEach-Object -Process `
