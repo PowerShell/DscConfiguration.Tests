@@ -226,6 +226,7 @@ function New-ResourceGroupandAutomationAccount
         }
 
         # Make sure subscription is selected
+        Write-Verbose 'Selcting Azure Subsription'
         $Subscription = Select-AzureRMSubscription -SubscriptionID $SubscriptionID `
             -TenantID $TenantID
 
