@@ -120,7 +120,7 @@ Add-BuildTask AzureLogin {
 Add-BuildTask ResourceGroupAndAutomationAccount {
     # Create Azure Resource Group and Automation account (TestHelper)
     Write-Output "Creating assets for build $env:BuildID."
-    New-ResourceGroupandAutomationAccount -Password $script:Password -Verbose
+    New-ResourceGroupandAutomationAccount -Password $script:Password
 }
 
 <#
@@ -203,13 +203,16 @@ Add-BuildTask IntegrationTestAzureAutomationDSC {
     $AzureAutomationJobWait = Wait-Job $Script:AzureAutomationJob
     Receive-Job $Script:AzureAutomationJob
 
+    Write-Host 'Running tests tagged AADSCIntegration'
     $testResultsFile = "$env:BuildFolder\AADSCIntegrationTestsResults.xml"
     $Pester = Invoke-Pester -Tag AADSCIntegration -OutputFormat NUnitXml `
         -OutputFile $testResultsFile -PassThru
 
+    Write-Host 'Uploading test results to Appveyor'
     (New-Object 'System.Net.WebClient').UploadFile("$env:TestResultsUploadURI", `
     (Resolve-Path $testResultsFile))
 
+    Write-Host 'Uploading build artifacts to Appveyor'
     Push-AppveyorArtifact -Path (Resolve-Path $testResultsFile)
 
     if ($Pester.FailedCount -gt 0) {
