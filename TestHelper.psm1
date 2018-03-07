@@ -132,10 +132,11 @@ param()
             
             # Discover OS versions, or default to Server 2016 Datacenter Edition
             $OSVersions = if ($ScriptFileInfo.PrivateData -ne $null) {
-                if ($ScriptFileInfo.PrivateData.Contains(',')) {
-                    $ScriptFileInfo.PrivateData.split(',')
+                $PrivateData = $ScriptFileInfo.PrivateData.replace("'",'').replace('"','')
+                if ($PrivateData.Contains(',')) {
+                    $PrivateData.split(',')
                 } 
-                else {$ScriptFileInfo.PrivateData}
+                else {$PrivateData}
             }
             if (!$OSVersions) {$OSversions = '2016-Datacenter'}
             
