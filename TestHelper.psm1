@@ -159,7 +159,7 @@ param()
     }
     catch [System.Exception] 
     {
-        throw "An error occured while loading configurations.  The error was:`n$($_.exception.message)`nThe result of test-path was $testpath."
+        throw "An error occured while loading configurations.  The error was:`n$($_.exception.message)`nThe result of test-path was $testpath.`n OSVersions: $OSVersions`nConfiguration: $Configuration`nRequired Modules: $RequiredModules"
     }
 }
 
