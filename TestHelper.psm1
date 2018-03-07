@@ -127,16 +127,23 @@ param()
         $TestPath = Test-Path "$env:BuildFolder\$env:ProjectName.ps1"
         
         if ($ScriptFileInfo = Test-ScriptFileInfo -Path "$env:BuildFolder\$env:ProjectName.ps1") {
+            
             Write-Verbose "capturing information from script in project $env:ProjectName"
+            
             # Discover OS versions, or default to Server 2016 Datacenter Edition
-            $OSVersions = if ($ScriptFileInfo.PrivateData.Contains(',')) {
-                $ScriptFileInfo.PrivateData.split(',')
-            } else {$ScriptFileInfo.PrivateData}
+            $OSVersions = if ($ScriptFileInfo.PrivateData -ne $null) {
+                if ($ScriptFileInfo.PrivateData.Contains(',')) {
+                    $ScriptFileInfo.PrivateData.split(',')
+                } 
+                else {$ScriptFileInfo.PrivateData}
+            }
             if (!$OSVersions) {$OSversions = '2016-Datacenter'}
+            
             Write-Verbose "Identified operating systems $OSVersions"
             
             # Discover list of required modules
             $RequiredModules = $ScriptFileInfo.RequiredModules
+            
             Write-Verbose "Identified modules $RequiredModules"
         }
 
