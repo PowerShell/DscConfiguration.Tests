@@ -200,7 +200,7 @@ function Invoke-AzureSPNLogin
         $AzProfileContent = Set-Content -Value '{"enableAzureDataCollection":true}' -Path (Join-Path $Path 'AzureDataCollectionProfile.json') 
 
         # Handle login
-        $AddAccount = Add-AzureRmAccount -ServicePrincipal -SubscriptionID $SubscriptionID -TenantID $TenantID -Credential $Credential -ErrorAction SilentlyContinue
+        $AddAccount = Connect-AzureRmAccount -ServicePrincipal -Subscription $SubscriptionID -TenantID $TenantID -Credential $Credential -ErrorAction SilentlyContinue
 
         # Validate login
         $LoginSuccessful = Get-AzureRmSubscription -SubscriptionID $SubscriptionID -TenantID $TenantID
