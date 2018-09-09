@@ -200,7 +200,7 @@ function Invoke-AzureSPNLogin
         $AzProfileContent = Set-Content -Value '{"enableAzureDataCollection":true}' -Path (Join-Path $Path 'AzureDataCollectionProfile.json') 
 
         # Handle login
-        $AddAccount = Connect-AzureRmAccount -ServicePrincipal -Subscription $SubscriptionID -TenantID $TenantID -Credential $Credential -ErrorAction SilentlyContinue
+        $AddAccount = Connect-AzureRmAccount -ServicePrincipal -Subscription $SubscriptionID -TenantID $TenantID -Credential $Credential
 
         # Validate login
         $LoginSuccessful = Get-AzureRmSubscription -SubscriptionID $SubscriptionID -TenantID $TenantID
@@ -210,6 +210,7 @@ function Invoke-AzureSPNLogin
     }
     catch [System.Exception] {
         write-output "An error occured while logging in to Azure`n$($_.exception.message)"
+        throw 'Build script cannot continue.'
     }
 }
 
